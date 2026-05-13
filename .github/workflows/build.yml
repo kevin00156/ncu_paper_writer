@@ -1,0 +1,109 @@
+name: Build Examples
+
+# 編譯範例 PDF 較重（裝 TeX Live 約 10–15 分鐘），不適合每次 push 都跑。
+# 觸發時機：
+#   - PR 開啟/更新時
+#   - 手動觸發（Actions 頁面 "Run workflow"）
+#   - push 到 main 但有改到編譯相關檔案（模板、build 腳本、範例、CI 本身）
+on:
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths:
+      - 'templates/**'
+      - 'cites/**'
+      - 'examples/**'
+      - 'build.sh'
+      - 'build.ps1'
+      - 'Makefile'
+      - '.github/workflows/build.yml'
+
+jobs:
+  build:
+    name: Build PDFs on Ubuntu
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache APT packages
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: apt-${{ runner.os }}-${{ hashFiles('.github/workflows/build.yml') }}
+
+      - name: Install Pandoc, TeX Live, biber, CJK fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pandoc \
+            texlive-xetex \
+            texlive-lang-cjk \
+            texlive-fonts-recommended \
+            texlive-fonts-extra \
+            texlive-bibtex-extra \
+            texlive-publishers \
+            biber \
+            fonts-noto-cjk \
+            fonts-noto-cjk-extra
+
+      - name: Verify environment
+        run: |
+          pandoc --version | head -n1
+          xelatex --version | head -n1
+          biber --version
+          fc-list :lang=zh-tw | head -n5
+
+      - name: Make build script executable
+        run: chmod +x build.sh
+
+      - name: Build minimal example
+        run: |
+          ./build.sh examples/minimal/paper.md --verbose
+          ls -lh examples/minimal/paper.pdf
+
+      - name: Build full example
+        run: |
+          ./build.sh examples/full/paper.md --verbose
+          ls -lh examples/full/paper.pdf
+
+      - name: Verify PDFs are valid
+        run: |
+          for pdf in examples/minimal/paper.pdf examples/full/paper.pdf; do
+            if [ ! -f "$pdf" ]; then
+              echo "::error::Missing PDF: $pdf"
+              exit 1
+            fi
+            size=$(stat -c%s "$pdf")
+            if [ "$size" -lt 10240 ]; then
+              echo "::error::PDF too small ($size bytes): $pdf"
+              exit 1
+            fi
+            echo "PASS: $pdf ($size bytes)"
+          done
+
+      - name: Upload PDFs as artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: example-pdfs
+          path: |
+            examples/minimal/paper.pdf
+            examples/full/paper.pdf
+          retention-days: 30
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            examples/**/*.log
+            examples/**/*.tex
+            examples/**/*.aux
+            examples/**/*.blg
+          retention-days: 7

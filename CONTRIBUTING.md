@@ -48,6 +48,18 @@ docs: 補充 Zotero Better BibTeX 截圖
    - Windows: `.\build.ps1 examples\minimal\paper.md`
    - Linux/macOS: `./build.sh examples/minimal/paper.md`
 
+## CI 觸發說明
+
+本專案有兩支 GitHub Actions workflow：
+
+- **Lint**（`.github/workflows/lint.yml`）：每次 push / PR 都會跑，30 秒內結束。檢查 Skill frontmatter、template 章節錨點、論文內容禁用「——」。
+- **Build**（`.github/workflows/build.yml`）：較重（裝 TeX Live 約 10–15 分鐘），只在以下時機跑：
+  - PR 開啟/更新
+  - 手動觸發（在 GitHub Actions 頁面點 "Run workflow"）
+  - push 到 main 且**改動了編譯相關檔案**：`templates/`、`cites/`、`examples/`、`build.sh`、`build.ps1`、`Makefile`、或 build.yml 自身
+
+純改 docs/skill/template 不會觸發 build。若你想驗證模板改動的編譯結果，**請開 PR**（會自動跑 build），或在本機跑 `./build.sh examples/full/paper.md`。
+
 ## 程式碼風格
 
 - **Shell scripts**：遵循 [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)

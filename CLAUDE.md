@@ -130,7 +130,17 @@ PowerShell 5.1 會把 native exe（pandoc/xelatex/biber）的 stderr 包成 `Nat
 .\build.ps1 examples\minimal\paper.md
 ```
 
-PDF 必須 > 10 KB 且 11 頁左右才算通過。CI 也會驗證（`.github/workflows/build-test.yml`）。
+PDF 必須 > 10 KB 且 5 頁以上才算通過。
+
+### CI 結構（兩支 workflow）
+
+- **`.github/workflows/lint.yml`**：每次 push/PR 都跑（30 秒）。檢查 Skill frontmatter、章節錨點、禁用破折號。
+- **`.github/workflows/build.yml`**：較重（10–15 分鐘），只在以下時機跑：
+  - PR 開啟/更新
+  - 手動 `workflow_dispatch`
+  - push 到 main 且改到 `templates/`、`cites/`、`examples/`、`build.{sh,ps1}`、`Makefile` 或 `build.yml` 自身
+
+改 docs/skill/template 等不影響編譯的檔案 push 上去只會跑 lint。
 
 ### 改 docs
 

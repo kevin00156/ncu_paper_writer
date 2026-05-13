@@ -2,7 +2,8 @@
 
 > 國立中央大學碩博士論文 Markdown 寫作工具鏈
 
-[![Build Examples](https://github.com/your-username/ncu_paper_writer/actions/workflows/build-test.yml/badge.svg)](https://github.com/your-username/ncu_paper_writer/actions/workflows/build-test.yml)
+[![Lint](https://github.com/your-username/ncu_paper_writer/actions/workflows/lint.yml/badge.svg)](https://github.com/your-username/ncu_paper_writer/actions/workflows/lint.yml)
+[![Build Examples](https://github.com/your-username/ncu_paper_writer/actions/workflows/build.yml/badge.svg)](https://github.com/your-username/ncu_paper_writer/actions/workflows/build.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Pandoc](https://img.shields.io/badge/Pandoc-%E2%89%A53.0-blue)](https://pandoc.org)
 
