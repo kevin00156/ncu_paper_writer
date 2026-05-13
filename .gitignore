@@ -1,0 +1,53 @@
+# LaTeX / Pandoc compilation artifacts
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.xdv
+
+# Generated intermediate files
+paper.tex
+slides.tex
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.python-version
+*.egg-info/
+dist/
+build/
+
+# uv
+.uv-cache/
+
+# VS Code (keep tasks.json, settings.json, extensions.json as project defaults)
+.vscode/*.local.json
+.vscode/.ropeproject/
+
+# Claude Code local overrides
+.claude/settings.local.json
+
+# Install logs
+install.log
+*.bak.*
+
+# OS temp
+*.tmp

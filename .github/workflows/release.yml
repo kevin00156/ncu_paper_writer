@@ -1,0 +1,60 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Build and Publish Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pandoc \
+            texlive-xetex \
+            texlive-lang-cjk \
+            texlive-fonts-recommended \
+            texlive-bibtex-extra \
+            biber \
+            fonts-noto-cjk
+
+      - name: Build example PDFs
+        run: |
+          chmod +x build.sh
+          ./build.sh examples/minimal/paper.md
+          ./build.sh examples/full/paper.md
+
+      - name: Create release archive
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          ARCHIVE_NAME="ncu_paper_writer-${TAG}"
+          mkdir -p dist/$ARCHIVE_NAME
+          cp -r templates cites skill template scripts docs dist/$ARCHIVE_NAME/
+          cp -r examples dist/$ARCHIVE_NAME/
+          cp build.ps1 build.sh Makefile README.md LICENSE CHANGELOG.md CONTRIBUTING.md pyproject.toml .gitignore dist/$ARCHIVE_NAME/
+          cd dist
+          zip -r "${ARCHIVE_NAME}.zip" "$ARCHIVE_NAME"
+          tar czf "${ARCHIVE_NAME}.tar.gz" "$ARCHIVE_NAME"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/ncu_paper_writer-*.zip
+            dist/ncu_paper_writer-*.tar.gz
+            examples/minimal/paper.pdf
+            examples/full/paper.pdf
+          generate_release_notes: true
+          draft: false
+          prerelease: false

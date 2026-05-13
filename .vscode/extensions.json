@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "yzhang.markdown-all-in-one",
+    "valentjn.vscode-ltex",
+    "James-Yu.latex-workshop",
+    "bungcip.better-toml",
+    "tomoki1207.pdf",
+    "redhat.vscode-yaml",
+    "DavidAnson.vscode-markdownlint",
+    "vstirbu.vscode-mermaid-preview",
+    "anthropic.claude-code"
+  ],
+  "unwantedRecommendations": []
+}

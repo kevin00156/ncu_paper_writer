@@ -1,0 +1,187 @@
+name: Build Examples
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build PDFs on Ubuntu
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache APT packages
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: apt-${{ runner.os }}-${{ hashFiles('.github/workflows/build-test.yml') }}
+
+      - name: Install Pandoc, TeX Live, biber, CJK fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pandoc \
+            texlive-xetex \
+            texlive-lang-cjk \
+            texlive-fonts-recommended \
+            texlive-fonts-extra \
+            texlive-bibtex-extra \
+            texlive-publishers \
+            biber \
+            fonts-noto-cjk \
+            fonts-noto-cjk-extra
+
+      - name: Verify environment
+        run: |
+          pandoc --version | head -n1
+          xelatex --version | head -n1
+          biber --version
+          fc-list :lang=zh-tw | head -n5
+
+      - name: Make build script executable
+        run: chmod +x build.sh
+
+      - name: Build minimal example
+        run: |
+          ./build.sh examples/minimal/paper.md --verbose
+          ls -lh examples/minimal/paper.pdf
+
+      - name: Build full example
+        run: |
+          ./build.sh examples/full/paper.md --verbose
+          ls -lh examples/full/paper.pdf
+
+      - name: Verify PDFs are valid
+        run: |
+          for pdf in examples/minimal/paper.pdf examples/full/paper.pdf; do
+            if [ ! -f "$pdf" ]; then
+              echo "::error::Missing PDF: $pdf"
+              exit 1
+            fi
+            size=$(stat -c%s "$pdf")
+            if [ "$size" -lt 10240 ]; then
+              echo "::error::PDF too small ($size bytes): $pdf"
+              exit 1
+            fi
+            echo "PASS: $pdf ($size bytes)"
+          done
+
+      - name: Upload PDFs as artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: example-pdfs
+          path: |
+            examples/minimal/paper.pdf
+            examples/full/paper.pdf
+          retention-days: 30
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            examples/**/*.log
+            examples/**/*.tex
+          retention-days: 7
+
+  lint-skill:
+    name: Lint Skill markdown
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Skill front matter
+        run: |
+          # Skill 必須有 name 和 description 欄位
+          for skill in skill/*/SKILL.md; do
+            if ! grep -q "^name:" "$skill"; then
+              echo "::error file=$skill::Missing 'name:' in frontmatter"
+              exit 1
+            fi
+            if ! grep -q "^description:" "$skill"; then
+              echo "::error file=$skill::Missing 'description:' in frontmatter"
+              exit 1
+            fi
+            echo "OK: $skill"
+          done
+
+      - name: Check for forbidden em-dash in actual paper content
+        run: |
+          # NCU 規範禁止「——」用於論文正文
+          # 只檢查實際的論文內容（examples 的 paper.md），不檢查說明規則的文件
+          violations=0
+          for f in examples/minimal/paper.md examples/full/paper.md template/paper.md; do
+            if [ -f "$f" ]; then
+              # 排除註解內容、排除 LaTeX 註解
+              if grep -n "——" "$f" | grep -v "^\s*%" | grep -v "^\s*<!--"; then
+                echo "::error file=$f::Found forbidden em-dash「——」in paper content"
+                violations=$((violations + 1))
+              fi
+            fi
+          done
+          if [ "$violations" -gt 0 ]; then
+            exit 1
+          fi
+          echo "OK: No forbidden em-dashes in paper content"
+
+      - name: Check section anchors in template
+        run: |
+          # template/paper.md 中所有 # / ## 標題後都應有 {#sec:...}
+          python3 - <<'EOF'
+          import re, sys
+          from pathlib import Path
+
+          def check_file(md_path: Path) -> list[str]:
+              violations = []
+              text = md_path.read_text(encoding="utf-8")
+              lines = text.splitlines()
+
+              # 找 YAML frontmatter 範圍
+              yaml_end = -1
+              if lines and lines[0].strip() == "---":
+                  for i, line in enumerate(lines[1:], 1):
+                      if line.strip() == "---":
+                          yaml_end = i
+                          break
+
+              in_code_block = False
+              for i, line in enumerate(lines, 1):
+                  # 跳過 YAML frontmatter
+                  if i <= yaml_end + 1:
+                      continue
+                  # 偵測 code block
+                  if line.strip().startswith("```"):
+                      in_code_block = not in_code_block
+                      continue
+                  if in_code_block:
+                      continue
+                  # 偵測 HTML 註解
+                  if line.lstrip().startswith("<!--"):
+                      continue
+                  # 偵測標題且未含 {#sec:
+                  if re.match(r"^#{1,4}\s+\S", line) and "{#sec:" not in line:
+                      violations.append(f"{md_path}:{i}: {line.strip()}")
+              return violations
+
+          all_violations = []
+          for md in Path("template").glob("*.md"):
+              if md.name == "CLAUDE.md":
+                  continue
+              all_violations.extend(check_file(md))
+
+          if all_violations:
+              print("ERROR: Section anchors missing in template/")
+              for v in all_violations:
+                  print(f"  {v}")
+              sys.exit(1)
+          print("OK: All template sections have section anchors")
+          EOF

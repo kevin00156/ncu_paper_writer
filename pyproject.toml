@@ -1,0 +1,63 @@
+[project]
+name = "ncu-paper-writer"
+version = "0.1.0"
+description = "國立中央大學碩博士論文 Markdown 寫作工具鏈：Markdown + Zotero + Pandoc + XeLaTeX + Claude Skill"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "NCU Paper Writer Contributors" }
+]
+keywords = ["pandoc", "latex", "thesis", "ncu", "markdown", "zotero", "claude-code"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: Chinese (Traditional)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Text Processing :: Markup :: LaTeX",
+]
+dependencies = [
+    "fonttools>=4.50.0",
+]
+
+[project.optional-dependencies]
+plotting = [
+    "matplotlib>=3.7.0",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "adjustText>=1.0.0",
+]
+watch = [
+    "watchdog>=4.0.0",
+]
+dev = [
+    "ruff>=0.4.0",
+    "pytest>=8.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-username/ncu_paper_writer"
+Documentation = "https://github.com/your-username/ncu_paper_writer/tree/main/docs"
+Repository = "https://github.com/your-username/ncu_paper_writer"
+Issues = "https://github.com/your-username/ncu_paper_writer/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["scripts"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "RET", "SIM"]
+ignore = ["E501"]

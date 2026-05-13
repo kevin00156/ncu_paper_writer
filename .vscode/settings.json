@@ -1,0 +1,64 @@
+{
+  "files.encoding": "utf8",
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+
+  "[markdown]": {
+    "files.trimTrailingWhitespace": false,
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": {
+      "comments": "off",
+      "strings": "off",
+      "other": "off"
+    },
+    "editor.tabSize": 2
+  },
+
+  "[latex]": {
+    "editor.tabSize": 2,
+    "editor.wordWrap": "on"
+  },
+
+  "[bibtex]": {
+    "editor.tabSize": 2
+  },
+
+  "[yaml]": {
+    "editor.tabSize": 2
+  },
+
+  "search.exclude": {
+    "**/*.aux": true,
+    "**/*.bbl": true,
+    "**/*.bcf": true,
+    "**/*.log": true,
+    "**/*.out": true,
+    "**/*.toc": true,
+    "**/*.lof": true,
+    "**/*.lot": true,
+    "**/*.run.xml": true,
+    "**/*.fdb_latexmk": true,
+    "**/*.fls": true,
+    "**/*.synctex.gz": true,
+    "**/__pycache__": true,
+    "**/.venv": true,
+    "**/.uv-cache": true
+  },
+
+  "files.associations": {
+    "*.latex": "latex",
+    "*.tex": "latex",
+    "*.bib": "bibtex"
+  },
+
+  "ltex.language": "zh-TW",
+  "ltex.additionalRules.motherTongue": "zh-TW",
+
+  "markdown.preview.fontFamily": "標楷體, Noto Serif CJK TC, sans-serif",
+
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "*.md": "${capture}.pdf, ${capture}.tex, ${capture}.aux, ${capture}.log, ${capture}.bbl, ${capture}.bcf, ${capture}.toc, ${capture}.run.xml, ${capture}.lof, ${capture}.lot, ${capture}.out, ${capture}.fdb_latexmk, ${capture}.fls, ${capture}.synctex.gz"
+  }
+}

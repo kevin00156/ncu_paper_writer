@@ -1,0 +1,122 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build PDF",
+      "type": "shell",
+      "command": "${command:workbench.action.terminal.kill}",
+      "windows": {
+        "command": "${workspaceFolder}/build.ps1",
+        "args": ["${file}"]
+      },
+      "linux": {
+        "command": "${workspaceFolder}/build.sh",
+        "args": ["${file}"]
+      },
+      "osx": {
+        "command": "${workspaceFolder}/build.sh",
+        "args": ["${file}"]
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build PDF (verbose)",
+      "type": "shell",
+      "windows": {
+        "command": "${workspaceFolder}/build.ps1",
+        "args": ["${file}", "-Verbose"]
+      },
+      "linux": {
+        "command": "${workspaceFolder}/build.sh",
+        "args": ["${file}", "--verbose"]
+      },
+      "osx": {
+        "command": "${workspaceFolder}/build.sh",
+        "args": ["${file}", "--verbose"]
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Watch and Build",
+      "type": "shell",
+      "windows": {
+        "command": "${workspaceFolder}/build.ps1",
+        "args": ["${file}", "-Watch"]
+      },
+      "linux": {
+        "command": "${workspaceFolder}/build.sh",
+        "args": ["${file}", "--watch"]
+      },
+      "osx": {
+        "command": "${workspaceFolder}/build.sh",
+        "args": ["${file}", "--watch"]
+      },
+      "isBackground": true,
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Clean Intermediates",
+      "type": "shell",
+      "windows": {
+        "command": "${workspaceFolder}/build.ps1",
+        "args": ["${file}", "-Clean"]
+      },
+      "linux": {
+        "command": "${workspaceFolder}/build.sh",
+        "args": ["${file}", "--clean"]
+      },
+      "osx": {
+        "command": "${workspaceFolder}/build.sh",
+        "args": ["${file}", "--clean"]
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Check Environment",
+      "type": "shell",
+      "windows": {
+        "command": "${workspaceFolder}/scripts/check-env.ps1"
+      },
+      "linux": {
+        "command": "${workspaceFolder}/scripts/check-env.sh"
+      },
+      "osx": {
+        "command": "${workspaceFolder}/scripts/check-env.sh"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}
