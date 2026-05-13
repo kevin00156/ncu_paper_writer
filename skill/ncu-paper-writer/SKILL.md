@@ -117,12 +117,25 @@ Markdown 標題對應層級：
 ### 文中引用章節
 
 ```markdown
-詳細設計將於 \ref{sec:method-architecture} 節說明。
+詳細設計將於第 \ref{sec:method-architecture} 節說明。
 
-相關討論請參考 \ref{sec:results-discussion} 節。
+相關討論請參考第 \ref{sec:results-discussion} 節。
 ```
 
 > **注意**：使用 `\ref{}` 而非 `[@sec:...]`。章節引用屬 LaTeX 交叉引用，與 `[@key]` 文獻引用不同。Pandoc 會把 `{#sec:xxx}` 編譯成 `\label{sec:xxx}`，與 `\ref{}` 配對。
+
+> ⚠ **重要慣例**：`\ref{}` **只回傳編號數字**（例如 `2`、`3.1`），不會自動加「第」、「章」、「節」等字。所以中文敘述必須**手動補上前後綴文字**：
+>
+> | 寫法 | PDF 顯示 | 評價 |
+> |------|---------|------|
+> | `\ref{sec:method} 章說明…` | `2 章說明…` | ❌ 缺「第」 |
+> | `第 \ref{sec:method} 章說明…` | `第 2 章說明…` | ✅ 正確 |
+> | `見 \ref{sec:results}` | `見 3` | ❌ 語意不全 |
+> | `見第 \ref{sec:results} 章` | `見第 3 章` | ✅ 正確 |
+> | `\ref{sec:intro-background} 節提到…` | `1.1 節提到…` | ❌ 缺「第」 |
+> | `第 \ref{sec:intro-background} 節提到…` | `第 1.1 節提到…` | ✅ 正確 |
+>
+> **AI 助手撰寫時**：發現 `\ref{sec:...}` 前後缺少「第」、「章」、「節」等中文前後綴時，主動補上。
 
 ---
 
@@ -402,6 +415,40 @@ $$
 標籤名稱 LABEL\_NAME
 ```
 
+### ⚠ 字體可用字元限制（標楷體）
+
+NCU 預設字體「標楷體」（kaiu.ttf）**不包含**部分 Unicode 符號，編譯時會渲染為空框 `□` 或方塊。請避免在正文使用以下字元：
+
+| 不可用 | 應改用 | 說明 |
+|--------|--------|------|
+| `✓` `✗` `☑` `☐` | `\checkmark` `\textcolor{red}{\ding{55}}` 或文字「是」「否」 | 勾叉符號需 `\usepackage{pifont}` 才能用 ding 系列 |
+| `★` `☆` `♥` `♣` | `\bigstar`（需 `amssymb`）或文字 | 裝飾性符號 |
+| `→` `←` `↑` `↓` `⇒` | `$\to$` `$\gets$` `$\uparrow$` `$\downarrow$` `$\Rightarrow$` | 用數學模式 |
+| `≤` `≥` `≠` `≈` `±` | `$\leq$` `$\geq$` `$\neq$` `$\approx$` `$\pm$` | 用數學模式 |
+| `α` `β` `γ` `θ` `π` | `$\alpha$` `$\beta$` `$\gamma$` `$\theta$` `$\pi$` | 希臘字母用數學模式 |
+| `°` `′` `″` | `$^\circ$` `$'$` `$''$` | 角度、分秒 |
+| `①` `②` `③` | `(1)` `(2)` `(3)` 或 `\textcircled{1}`（需 `pifont`） | 圈圈數字 |
+| Emoji（😀 🎉 等） | 避免使用 | 學術論文不應出現 |
+
+#### 建議做法
+
+```markdown
+✗ 錯誤：以下項目皆通過測試：
+       - ✓ Pandoc 轉換
+       - ✓ XeLaTeX 編譯
+
+✓ 正確：以下項目皆通過測試：
+       - **通過** Pandoc 轉換
+       - **通過** XeLaTeX 編譯
+
+或用 LaTeX：
+       \usepackage{pifont}
+       - \ding{51} Pandoc 轉換
+       - \ding{51} XeLaTeX 編譯
+```
+
+> **AI 助手撰寫時**：偵測到 `✓ ✗ → ≤ α` 等非標楷體 glyph 時，主動建議替代寫法或在 header-includes 加 `\usepackage{pifont}`、`\usepackage{amssymb}` 並改用 LaTeX 指令。
+
 ---
 
 ## 十一、論文裝訂順序（供完整結構參考）
@@ -526,7 +573,9 @@ toc: false              # 手動插入 \tableofcontents
 | 特殊字元未轉義（如 `%`, `_`） | 加 `\` 轉義 |
 | 修改論文數字需全文搜尋替換 | 在 header 定義 `\def\變數{值}` 集中管理 |
 | 章節引用用 `[@sec:...]` | 改用 `\ref{sec:...}`（避免與文獻引用衝突）|
+| `\ref{sec:method} 章` 結果是「2 章」 | 改 `第 \ref{sec:method} 章` → 「第 2 章」 |
 | 使用全形破折號「——」 | 改用頓號、逗號、括號或重新組句 |
+| 用 `✓ ✗ → ≤ α` 等符號 | 標楷體無這些 glyph，改用 LaTeX 指令（`\checkmark`、`$\to$`、`$\leq$`、`$\alpha$`）|
 
 ---
 
@@ -540,4 +589,6 @@ toc: false              # 手動插入 \tableofcontents
 4. **檢查數字一致性**：發現多處重複的實驗數字，建議改用 `\def\變數{值}` 集中管理
 5. **檢查破折號**：發現「——」時提醒修改
 6. **跨章節參照**：使用者要求「參考 XX 章節」時，主動找出該章節的 `{#sec:...}` 錨點並用 `\ref{}` 語法
-7. **保持風格一致**：觀察既有章節的命名、語氣、粗體使用方式，新撰寫的段落應沿用
+7. **檢查 `\ref{}` 前後綴**：發現 `\ref{sec:...}` 前後缺少「第」、「章」、「節」等中文文字時，主動補上（範例：`\ref{sec:method} 章` → `第 \ref{sec:method} 章`）
+8. **檢查非標楷體字元**：偵測到 `✓ ✗ → ≤ α °` 等標楷體無法渲染的 Unicode 符號時，建議改用對應 LaTeX 指令（`\checkmark`、`$\to$`、`$\leq$`、`$\alpha$`、`$^\circ$`）；若整篇有多處使用，提醒在 `header-includes` 中 `\usepackage{pifont}` 或 `\usepackage{amssymb}`
+9. **保持風格一致**：觀察既有章節的命名、語氣、粗體使用方式，新撰寫的段落應沿用

@@ -15,18 +15,23 @@
 
 ## 交叉引用
 
-| 引用對象 | 語法 |
+| 引用對象 | 語法（含必要中文前後綴）|
 |---------|------|
-| 章節 | `\ref{sec:method}` |
+| 章節 | `第 \ref{sec:method} 章` / `第 \ref{sec:results-main} 節` |
 | 圖片 | `圖 \ref{fig:example}` |
 | 表格 | `表 \ref{tab:example}` |
 | 公式 | `公式 \ref{eq:example}` |
 
 範例：
 ```markdown
-詳細設計將於 \ref{sec:method} 章節說明。
+詳細設計將於第 \ref{sec:method} 章說明。
+本節討論延伸自第 \ref{sec:literature} 章的文獻回顧。
 如圖 \ref{fig:overview} 與表 \ref{tab:results} 所示。
 ```
+
+> ⚠ **`\ref{}` 只回傳編號數字**（例如 `2`、`3.1`），不會自動加「第」、「章」、「節」。所以中文敘述必須**手動補上前後綴**：
+> - ❌ `\ref{sec:method} 章說明…` → PDF 顯示「2 章說明…」
+> - ✅ `第 \ref{sec:method} 章說明…` → PDF 顯示「第 2 章說明…」
 
 > ⚠ **章節引用不要用 `[@sec:...]`**，那會被當作文獻引用。
 

@@ -219,6 +219,54 @@ LaTeX 預設項目間有 `\parskip`。可以在 header-includes 加：
 ```
 （需 `\usepackage{enumitem}`）
 
+### `✓` `→` `≤` `α` 等符號顯示為方框 `□`
+
+標楷體（kaiu.ttf）的 glyph 範圍不含這些 Unicode 符號，XeLaTeX 編譯時找不到對應字形。
+
+**解法 A**：改用 LaTeX 數學模式或宏
+
+```markdown
+✗ 錯誤：通過率 ≥ 95%，角度 30°，學習率 α = 0.01
+✓ 正確：通過率 $\geq$ 95\%，角度 $30^\circ$，學習率 $\alpha = 0.01$
+```
+
+**解法 B**：使用 pifont/amssymb 套件提供的指令
+
+在 YAML `header-includes` 加：
+```latex
+\usepackage{pifont}    % 提供 \ding{51} (✓)、\ding{55} (✗) 等
+\usepackage{amssymb}   % 提供 \checkmark、\bigstar 等
+```
+
+文中使用：
+```markdown
+- \ding{51} 通過項目一
+- \ding{55} 失敗項目二
+```
+
+**解法 C**：替主字型加 fallback（顯示原符號）
+
+在 YAML：
+```yaml
+CJKmainfont: "標楷體"
+CJKoptions:
+  - "FallbackFont=Noto Sans CJK TC"
+```
+
+或讓主字型 fallback 到 Symbola/Noto Sans Symbols。
+
+### `\ref{sec:method} 章說明…` 在 PDF 顯示為「2 章說明…」（缺「第」字）
+
+`\ref{}` 只回傳編號數字，需要手動補上「第」、「章」、「節」等中文前後綴：
+
+```markdown
+✗ 錯誤：本節延伸自 \ref{sec:literature} 章的討論
+✓ 正確：本節延伸自第 \ref{sec:literature} 章的討論
+
+✗ 錯誤：詳見 \ref{sec:results-main} 節
+✓ 正確：詳見第 \ref{sec:results-main} 節
+```
+
 ## 還是找不到答案？
 
 開 [GitHub Issue](../../issues/new/choose)，請附上：
