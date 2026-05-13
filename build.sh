@@ -171,7 +171,14 @@ do_build() {
     if [[ "$VERBOSE" == "true" ]]; then
         pandoc_args+=(--verbose)
     fi
-    pandoc "${pandoc_args[@]}"
+    if ! pandoc "${pandoc_args[@]}"; then
+        log_error "Pandoc 編譯失敗 (exit=$?)"
+        exit 1
+    fi
+    if [[ ! -f "${INPUT_BASENAME}.tex" ]]; then
+        log_error "Pandoc 未產生 .tex 檔案"
+        exit 1
+    fi
 
     # Step 2: XeLaTeX 第一次編譯
     log_info "$ENGINE：第一次編譯"
@@ -200,18 +207,29 @@ do_build() {
     fi
 
     # Step 5: XeLaTeX 第三次編譯（解析目錄與交叉引用）
+    # 注意：xelatex 即使成功產出 PDF，遇到 undefined references / overfull hbox
+    # 等警告時可能回傳非零 exit code。配合 set -e 會中斷腳本，所以加 || true
+    # 容錯，最終以 PDF 是否成功產出為判定標準。
     log_info "$ENGINE：第三次編譯（解析目錄）"
     if [[ "$VERBOSE" == "true" ]]; then
-        $ENGINE -interaction=nonstopmode "${INPUT_BASENAME}.tex"
+        $ENGINE -interaction=nonstopmode "${INPUT_BASENAME}.tex" || true
     else
-        $ENGINE -interaction=nonstopmode "${INPUT_BASENAME}.tex" > /dev/null
+        $ENGINE -interaction=nonstopmode "${INPUT_BASENAME}.tex" > /dev/null || true
     fi
 
-    # 驗證 PDF 是否產出
+    # 驗證 PDF 是否產出（這是判定編譯成功的唯一標準）
     if [[ ! -f "${INPUT_BASENAME}.pdf" ]]; then
         log_error "編譯失敗：找不到產出的 PDF"
+        # 把 .log 與 .tex 拷回原目錄，供 CI artifact 取用
+        for ext in log tex aux blg; do
+            if [[ -f "${INPUT_BASENAME}.${ext}" ]]; then
+                cp "${INPUT_BASENAME}.${ext}" "$OUTPUT_DIR/${INPUT_BASENAME}.${ext}" || true
+            fi
+        done
         if [[ -f "${INPUT_BASENAME}.log" ]]; then
-            log_error "查看編譯記錄：${tmpdir}/${INPUT_BASENAME}.log"
+            log_error "編譯記錄已複製到：$OUTPUT_DIR/${INPUT_BASENAME}.log"
+            log_error "最後 80 行："
+            tail -n 80 "${INPUT_BASENAME}.log" >&2 || true
         fi
         exit 1
     fi
@@ -228,6 +246,9 @@ do_build() {
     pdf_size=$(stat -c%s "$OUTPUT_DIR/${INPUT_BASENAME}.pdf" 2>/dev/null \
             || stat -f%z "$OUTPUT_DIR/${INPUT_BASENAME}.pdf")
     log_ok "編譯完成：$OUTPUT_DIR/${INPUT_BASENAME}.pdf (${pdf_size} bytes)"
+
+    # 明確以成功狀態結束（避免 native command 殘留的非零碼）
+    return 0
 }
 
 # --- 監看模式 ---
@@ -275,3 +296,6 @@ if [[ "$WATCH" == "true" ]]; then
 else
     do_build
 fi
+
+# 明確以成功狀態結束
+exit 0
