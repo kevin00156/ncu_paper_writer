@@ -270,6 +270,10 @@ function Invoke-Build {
 
             $pdfInfo = Get-Item (Join-Path $Output "$InputBasename.pdf")
             Write-Ok "編譯完成：$($pdfInfo.FullName) ($($pdfInfo.Length) bytes)"
+
+            # XeLaTeX 即使有警告（undefined references、overfull hbox 等）也可能回傳非零 exit code，
+            # 但只要 PDF 成功產出且符合大小門檻，就視為成功。明確覆寫 $LASTEXITCODE。
+            $global:LASTEXITCODE = 0
         }
         finally {
             Pop-Location
@@ -336,3 +340,9 @@ if ($Watch) {
 } else {
     Invoke-Build
 }
+
+# 確保編譯成功時回傳 0（避免 native command 殘留的非零碼）
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+exit 0
