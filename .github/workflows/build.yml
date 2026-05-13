@@ -42,14 +42,20 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             pandoc \
             texlive-xetex \
+            texlive-latex-recommended \
+            texlive-latex-extra \
             texlive-lang-cjk \
             texlive-fonts-recommended \
             texlive-fonts-extra \
             texlive-bibtex-extra \
             texlive-publishers \
             biber \
+            lmodern \
             fonts-noto-cjk \
             fonts-noto-cjk-extra
+          # texlive-latex-recommended 提供 lmodern.sty、url.sty 等核心
+          # texlive-latex-extra 提供 titlesec、subfigure、xeCJK 相依等
+          # 額外裝 lmodern 套件確保 lmodern.sty 存在（Pandoc 模板會 \usepackage{lmodern}）
 
       - name: Verify environment
         run: |
