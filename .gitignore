@@ -18,6 +18,11 @@
 paper.tex
 slides.tex
 
+# Generated output (compile artifacts)
+# 註：若想 commit 範例 PDF 供瀏覽，可手動 git add -f
+paper.pdf
+slides.pdf
+
 # Editor / OS
 .DS_Store
 Thumbs.db
