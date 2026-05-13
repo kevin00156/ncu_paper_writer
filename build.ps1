@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
     NCU Paper Writer 跨平台編譯腳本 (Windows PowerShell)
@@ -71,7 +71,31 @@ function Write-Ok    { param([string]$Message) Write-Host "[OK]    " -Foreground
 function Write-WarnMsg { param([string]$Message) Write-Host "[WARN]  " -ForegroundColor Yellow -NoNewline; Write-Host $Message }
 function Write-ErrorMsg { param([string]$Message) Write-Host "[ERROR] " -ForegroundColor Red -NoNewline; Write-Host $Message }
 
-$ErrorActionPreference = "Stop"
+# PowerShell 5.1 會把 native exe 的 stderr 包成 ErrorRecord，當 $ErrorActionPreference="Stop" 時會中斷
+# 我們改用 Continue 並透過 $LASTEXITCODE 檢查 native command 結果
+$ErrorActionPreference = "Continue"
+
+# 呼叫 native command 並回傳 exit code，吞掉 stderr 避免 PowerShell 5.1 的 NativeCommandError 問題
+function Invoke-Native {
+    param(
+        [string]$Cmd,
+        [string[]]$ArgList,
+        [switch]$ShowOutput
+    )
+    $prevPref = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        if ($ShowOutput) {
+            & $Cmd @ArgList 2>&1 | ForEach-Object { Write-Host $_ }
+        } else {
+            & $Cmd @ArgList 2>&1 | Out-Null
+        }
+        return $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $prevPref
+    }
+}
+
 $ScriptDir = Split-Path -Parent $PSCommandPath
 
 # --- 模板預設值 ---
@@ -182,6 +206,8 @@ function Invoke-Build {
 
         Push-Location $tmpdir
         try {
+            $showOutput = ($VerbosePreference -eq "Continue")
+
             # Step 1: Pandoc Markdown → LaTeX
             Write-Info "Pandoc：Markdown → LaTeX"
             $pandocArgs = @(
@@ -191,52 +217,36 @@ function Invoke-Build {
                 "--template=templates/ncu.latex",
                 "--pdf-engine=$Engine"
             )
-            if ($VerbosePreference -eq "Continue") {
+            if ($showOutput) {
                 $pandocArgs += "--verbose"
             }
-            & pandoc @pandocArgs
-            if ($LASTEXITCODE -ne 0) {
-                Write-ErrorMsg "Pandoc 編譯失敗 (exit=$LASTEXITCODE)"
+            $code = Invoke-Native -Cmd "pandoc" -ArgList $pandocArgs -ShowOutput:$showOutput
+            if ($code -ne 0) {
+                Write-ErrorMsg "Pandoc 編譯失敗 (exit=$code)"
                 exit 1
             }
 
             # Step 2: 第一次 XeLaTeX
             Write-Info "${Engine}：第一次編譯"
             $latexArgs = @("-interaction=nonstopmode", "$InputBasename.tex")
-            if ($VerbosePreference -eq "Continue") {
-                & $Engine @latexArgs
-            } else {
-                & $Engine @latexArgs | Out-Null
-            }
+            $null = Invoke-Native -Cmd $Engine -ArgList $latexArgs -ShowOutput:$showOutput
 
             # Step 3: biber
             if (-not $NoBib) {
                 Write-Info "biber：處理參考文獻"
-                if ($VerbosePreference -eq "Continue") {
-                    & biber $InputBasename
-                } else {
-                    & biber $InputBasename 2>$null | Out-Null
-                }
-                if ($LASTEXITCODE -ne 0) {
-                    Write-WarnMsg "biber 失敗（可能是無引用條目）"
+                $code = Invoke-Native -Cmd "biber" -ArgList @($InputBasename) -ShowOutput:$showOutput
+                if ($code -ne 0) {
+                    Write-WarnMsg "biber 失敗 (exit=$code)（可能是無引用條目）"
                 }
             }
 
             # Step 4: 第二次 XeLaTeX
             Write-Info "${Engine}：第二次編譯（解析引用）"
-            if ($VerbosePreference -eq "Continue") {
-                & $Engine @latexArgs
-            } else {
-                & $Engine @latexArgs | Out-Null
-            }
+            $null = Invoke-Native -Cmd $Engine -ArgList $latexArgs -ShowOutput:$showOutput
 
             # Step 5: 第三次 XeLaTeX
             Write-Info "${Engine}：第三次編譯（解析目錄）"
-            if ($VerbosePreference -eq "Continue") {
-                & $Engine @latexArgs
-            } else {
-                & $Engine @latexArgs | Out-Null
-            }
+            $null = Invoke-Native -Cmd $Engine -ArgList $latexArgs -ShowOutput:$showOutput
 
             # 驗證
             $pdfPath = Join-Path $tmpdir "$InputBasename.pdf"
