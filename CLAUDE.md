@@ -23,7 +23,39 @@
 
 ## Git 工作流偏好
 
-**一律使用 `git rebase`，不要用 `git merge --no-ff` 或 merge commit。** 保持線性歷史。
+### 工具開發 vs 個人論文：用 worktree 隔離
+
+**這個 repo 有「兩條腿」**：
+
+1. **主分支 `main`**：NCU Paper Writer 工具本身的開發
+2. **使用者自己的論文分支**（如 `wu`、`nstc` 等）：使用者把實際論文以 markdown 撰寫時建立的個人分支
+
+**問題**：使用者在 IDE 中可能正切在自己的論文分支寫論文，這時 Claude 若直接 `git commit` 工具相關修正會誤投到使用者分支上（已踩過兩次，commit `4d7c1c1` 跑到 wu、`1d47953` 跑到 nstc）。
+
+**解法（強制）**：Claude 做工具開發時**一律使用 worktree**，與使用者的工作目錄完全隔離。
+
+```bash
+# 一次性設定（第一次需要時建立）
+git worktree add ../ncu_paper_writer.wt-main main
+
+# 之後所有工具開發都在 worktree 目錄裡操作
+cd ../ncu_paper_writer.wt-main
+# ... 編輯、commit、push 都在這裡
+```
+
+**檢查清單**：每次開始工具開發任務前先驗證：
+
+```bash
+git worktree list   # 應該看到 .wt-main 存在
+pwd                  # 應該在 .wt-main 目錄
+git branch --show-current  # 應該是 main
+```
+
+如果發現自己在主工作目錄（`ncu_paper_writer/` 本體）而非 `.wt-main`，**先 `cd ../ncu_paper_writer.wt-main`** 再開始任何 commit。
+
+### 一律使用 `git rebase`
+
+**不要用 `git merge --no-ff` 或 merge commit。** 保持線性歷史。
 
 ### 合併 feature/test 分支回 main 的標準做法
 
