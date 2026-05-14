@@ -16,7 +16,7 @@
 1. 開啟 PowerShell（建議「以系統管理員身分執行」）
 2. Clone repo 並執行安裝腳本：
    ```powershell
-   git clone https://github.com/your-username/ncu_paper_writer.git
+   git clone https://github.com/kevin00156/ncu_paper_writer.git
    cd ncu_paper_writer
    .\scripts\install.ps1
    ```
@@ -29,7 +29,7 @@ Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 ### Linux (Ubuntu / Debian / Fedora / Arch)
 
 ```bash
-git clone https://github.com/your-username/ncu_paper_writer.git
+git clone https://github.com/kevin00156/ncu_paper_writer.git
 cd ncu_paper_writer
 bash scripts/install.sh
 ```
@@ -38,7 +38,7 @@ bash scripts/install.sh
 
 確認已安裝 [Homebrew](https://brew.sh)，然後：
 ```bash
-git clone https://github.com/your-username/ncu_paper_writer.git
+git clone https://github.com/kevin00156/ncu_paper_writer.git
 cd ncu_paper_writer
 bash scripts/install.sh
 ```

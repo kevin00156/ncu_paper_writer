@@ -2,8 +2,8 @@
 
 > 國立中央大學碩博士論文 Markdown 寫作工具鏈
 
-[![Lint](https://github.com/your-username/ncu_paper_writer/actions/workflows/lint.yml/badge.svg)](https://github.com/your-username/ncu_paper_writer/actions/workflows/lint.yml)
-[![Build Examples](https://github.com/your-username/ncu_paper_writer/actions/workflows/build.yml/badge.svg)](https://github.com/your-username/ncu_paper_writer/actions/workflows/build.yml)
+[![Lint](https://github.com/kevin00156/ncu_paper_writer/actions/workflows/lint.yml/badge.svg)](https://github.com/kevin00156/ncu_paper_writer/actions/workflows/lint.yml)
+[![Build Examples](https://github.com/kevin00156/ncu_paper_writer/actions/workflows/build.yml/badge.svg)](https://github.com/kevin00156/ncu_paper_writer/actions/workflows/build.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Pandoc](https://img.shields.io/badge/Pandoc-%E2%89%A53.0-blue)](https://pandoc.org)
 
@@ -49,7 +49,7 @@
 ### 1. Clone repo
 
 ```bash
-git clone https://github.com/your-username/ncu_paper_writer.git
+git clone https://github.com/kevin00156/ncu_paper_writer.git
 cd ncu_paper_writer
 ```
 

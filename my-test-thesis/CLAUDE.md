@@ -1,6 +1,6 @@
 # NCU 論文專案
 
-本專案使用 [NCU Paper Writer](https://github.com/your-username/ncu_paper_writer) 工作流撰寫。
+本專案使用 [NCU Paper Writer](https://github.com/kevin00156/ncu_paper_writer) 工作流撰寫。
 
 ## Claude Code Skill
 
