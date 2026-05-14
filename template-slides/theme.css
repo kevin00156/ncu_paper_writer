@@ -1,0 +1,37 @@
+/*
+ * 個人微調用 CSS
+ *
+ * 不要直接改 templates/marp/ncu.css，那是工具本體；
+ * 在這裡 override 變數或新增規則，保持上游可更新。
+ *
+ * 使用方式：
+ *   1. slides.md 的 frontmatter 設 `theme: ncu`（套用本工具預設主題）
+ *   2. 在 slides.md 開頭加一行：
+ *        <style>
+ *        @import 'theme.css';
+ *        </style>
+ *      或在 build-slides 時用 --theme 指向「合併後」的主題（進階）。
+ *
+ * 最簡單做法：直接在 slides.md 內用 <style> 區塊改少數變數，例如：
+ *
+ *   <style>
+ *   :root {
+ *     --ncu-primary: #5B2D8C;   // 改成 NCU 紫
+ *   }
+ *   </style>
+ *
+ * 以下為範例（已註解，需要時取消註解）：
+ */
+
+/*
+:root {
+  --ncu-primary: #5B2D8C;
+  --ncu-accent: #8B5DBA;
+}
+*/
+
+/*
+section {
+  font-family: "PingFang TC", "Noto Sans CJK TC", sans-serif;
+}
+*/

@@ -22,6 +22,7 @@ slides.tex
 # 註：若想 commit 範例 PDF 供瀏覽，可手動 git add -f
 paper.pdf
 slides.pdf
+slides.html
 
 # Editor / OS
 .DS_Store

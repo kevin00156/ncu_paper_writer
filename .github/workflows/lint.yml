@@ -103,3 +103,76 @@ jobs:
               sys.exit(1)
           print("OK: All template sections have section anchors")
           EOF
+
+      - name: Check Marp slides frontmatter and page count
+        run: |
+          # 檢查所有 *.md 含 `marp: true` 的檔案：
+          #   1. frontmatter 必須有 theme:
+          #   2. 總頁數不得超過 35
+          python3 - <<'EOF'
+          import re, sys
+          from pathlib import Path
+
+          def parse_frontmatter(text: str) -> dict:
+              if not text.startswith("---\n"):
+                  return {}
+              end = text.find("\n---\n", 4)
+              if end == -1:
+                  return {}
+              fm = {}
+              for line in text[4:end].splitlines():
+                  m = re.match(r"^([A-Za-z][A-Za-z0-9_-]*)\s*:\s*(.*)$", line)
+                  if m:
+                      fm[m.group(1)] = m.group(2).strip().strip('"').strip("'")
+              return fm
+
+          def count_slides(text: str) -> int:
+              # Marp 分頁：空行 + --- + 空行（含檔案開頭的 frontmatter 後也有一個 ---）
+              # 簡化：計算位於行首的 --- 出現次數，扣掉 frontmatter 的 2 個
+              count = 0
+              in_fm = False
+              fm_seen = 0
+              for i, line in enumerate(text.splitlines()):
+                  if line.strip() == "---":
+                      if i == 0:
+                          in_fm = True
+                          fm_seen += 1
+                      elif in_fm and fm_seen < 2:
+                          in_fm = False
+                          fm_seen += 1
+                      else:
+                          count += 1
+              # 第一頁不需 ---，所以總頁數 = 分隔線數 + 1
+              return count + 1
+
+          all_slides = list(Path(".").rglob("*.md"))
+          violations = []
+          MAX_PAGES = 35
+
+          for md in all_slides:
+              if any(p in md.parts for p in (".git", "node_modules", ".venv", "venv")):
+                  continue
+              try:
+                  text = md.read_text(encoding="utf-8")
+              except Exception:
+                  continue
+              fm = parse_frontmatter(text)
+              if fm.get("marp", "").lower() != "true":
+                  continue
+
+              if not fm.get("theme"):
+                  violations.append(f"{md}: marp frontmatter 缺少 theme:")
+
+              pages = count_slides(text)
+              if pages > MAX_PAGES:
+                  violations.append(f"{md}: 簡報共 {pages} 頁，超過上限 {MAX_PAGES} 頁")
+              else:
+                  print(f"OK: {md} ({pages} pages)")
+
+          if violations:
+              print("\nERROR: Marp 簡報檢查未通過")
+              for v in violations:
+                  print(f"  {v}")
+              sys.exit(1)
+          print("OK: All Marp slides pass lint")
+          EOF

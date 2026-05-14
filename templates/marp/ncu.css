@@ -1,0 +1,316 @@
+/* @theme ncu */
+/*
+ * NCU Paper Writer — 口試簡報主題
+ *
+ * 設計原則：
+ *   - 保守學術藍色系，凸顯標題、不搶內容
+ *   - 中文字型優先 Noto Sans CJK TC，fallback PingFang TC / 微軟正黑體
+ *   - 字級偏大、行距寬鬆，投影機可讀性優先
+ *   - 不依賴外部圖檔，純 CSS 排版（避免相依風險）
+ *
+ * 使用者要客製化顏色 / 字型時，建議「不要」直接改本檔，
+ * 改在 slides.md 旁的 theme.css 用 @import 後 override，保持本主題可追隨上游更新。
+ */
+
+@import 'default';
+
+/* === 顏色變數（自訂時改這裡即可） === */
+:root {
+  --ncu-primary: #003366;        /* 主色：深海軍藍，用於標題、強調 */
+  --ncu-accent: #0066A8;         /* 次色：中藍，用於連結、副標 */
+  --ncu-muted: #6C7A89;          /* 灰色：用於頁碼、註解 */
+  --ncu-bg: #FFFFFF;             /* 背景：純白 */
+  --ncu-bg-alt: #F5F7FA;         /* 替代背景：淺灰，用於 code block / 引言 */
+  --ncu-text: #1A1A1A;           /* 內文：近黑色（純黑對比過強） */
+  --ncu-rule: #003366;           /* 分隔線色 */
+}
+
+/* === 基底版面 === */
+section {
+  font-family:
+    "Noto Sans CJK TC",
+    "Noto Sans TC",
+    "PingFang TC",
+    "Microsoft JhengHei",
+    "微軟正黑體",
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  font-size: 28px;
+  line-height: 1.55;
+  color: var(--ncu-text);
+  background: var(--ncu-bg);
+  padding: 60px 70px;
+}
+
+/* === 標題 === */
+section h1 {
+  color: var(--ncu-primary);
+  font-size: 44px;
+  font-weight: 700;
+  margin: 0 0 24px 0;
+  padding-bottom: 12px;
+  border-bottom: 3px solid var(--ncu-rule);
+  letter-spacing: 0.02em;
+}
+
+section h2 {
+  color: var(--ncu-primary);
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 18px 0;
+}
+
+section h3 {
+  color: var(--ncu-accent);
+  font-size: 26px;
+  font-weight: 600;
+  margin: 16px 0 8px 0;
+}
+
+section h4,
+section h5,
+section h6 {
+  color: var(--ncu-accent);
+  font-size: 22px;
+  font-weight: 600;
+  margin: 12px 0 6px 0;
+}
+
+/* === 內文 / 列表 === */
+section p {
+  margin: 0.5em 0;
+}
+
+section ul,
+section ol {
+  margin: 0.5em 0;
+  padding-left: 1.6em;
+}
+
+section li {
+  margin: 0.35em 0;
+}
+
+section li::marker {
+  color: var(--ncu-primary);
+}
+
+/* === 強調 === */
+section strong {
+  color: var(--ncu-primary);
+  font-weight: 700;
+}
+
+section em {
+  color: var(--ncu-accent);
+}
+
+/* === 連結 === */
+section a {
+  color: var(--ncu-accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--ncu-accent);
+}
+
+/* === 引用 === */
+section blockquote {
+  border-left: 4px solid var(--ncu-primary);
+  background: var(--ncu-bg-alt);
+  padding: 12px 18px;
+  margin: 12px 0;
+  color: var(--ncu-text);
+  font-style: normal;
+}
+
+section blockquote::before,
+section blockquote::after {
+  content: none;
+}
+
+/* === 程式碼 === */
+section code {
+  font-family: "JetBrains Mono", "Fira Code", Consolas, "Cascadia Code", monospace;
+  font-size: 0.9em;
+  background: var(--ncu-bg-alt);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--ncu-primary);
+}
+
+section pre {
+  background: var(--ncu-bg-alt);
+  padding: 14px 18px;
+  border-radius: 6px;
+  border-left: 4px solid var(--ncu-primary);
+  overflow-x: auto;
+  font-size: 22px;
+  line-height: 1.4;
+}
+
+section pre code {
+  background: transparent;
+  padding: 0;
+  color: var(--ncu-text);
+}
+
+/* === 表格 === */
+section table {
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 0.92em;
+  width: 100%;
+}
+
+section table th {
+  background: var(--ncu-primary);
+  color: #FFFFFF;
+  font-weight: 700;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+section table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #D8DEE3;
+}
+
+section table tr:nth-child(even) td {
+  background: var(--ncu-bg-alt);
+}
+
+/* === 圖片：預設置中、不超出版面 === */
+section img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+}
+
+/* === 水平分隔線 === */
+section hr {
+  border: none;
+  border-top: 2px solid var(--ncu-rule);
+  margin: 18px 0;
+}
+
+/* === 頁碼 / 頁尾 === */
+section::after {
+  color: var(--ncu-muted);
+  font-size: 16px;
+  bottom: 20px;
+  right: 30px;
+}
+
+section footer {
+  color: var(--ncu-muted);
+  font-size: 16px;
+  bottom: 20px;
+  left: 30px;
+}
+
+section header {
+  color: var(--ncu-muted);
+  font-size: 16px;
+  top: 20px;
+  left: 30px;
+}
+
+/* === Lead 版型（封面、章節分隔頁）=== */
+section.lead {
+  text-align: center;
+  justify-content: center;
+}
+
+section.lead h1 {
+  font-size: 56px;
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 24px;
+}
+
+section.lead h2 {
+  font-size: 32px;
+  color: var(--ncu-accent);
+  font-weight: 500;
+  margin-bottom: 40px;
+}
+
+section.lead p {
+  font-size: 24px;
+  color: var(--ncu-muted);
+  margin: 0.3em 0;
+}
+
+section.lead hr {
+  width: 30%;
+  margin: 24px auto;
+}
+
+/* === Section divider 版型（章節大標頁）=== */
+section.section-divider {
+  background: var(--ncu-primary);
+  color: #FFFFFF;
+  text-align: center;
+  justify-content: center;
+}
+
+section.section-divider h1 {
+  color: #FFFFFF;
+  font-size: 64px;
+  border-bottom: 4px solid #FFFFFF;
+  padding-bottom: 16px;
+  display: inline-block;
+}
+
+section.section-divider p {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 28px;
+  margin-top: 30px;
+}
+
+/* === 兩欄版型：在 markdown 中用 <div class="columns">...</div> 包覆 === */
+section .columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+section .columns-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* === 注意/警告框 === */
+section .note {
+  background: var(--ncu-bg-alt);
+  border-left: 4px solid var(--ncu-accent);
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-size: 0.92em;
+}
+
+section .warn {
+  background: #FFF4E6;
+  border-left: 4px solid #D97706;
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-size: 0.92em;
+}
+
+/* === 小字版型：當一頁內容偏多時 === */
+section.compact {
+  font-size: 24px;
+}
+
+section.compact h1 {
+  font-size: 36px;
+}
+
+section.compact h2 {
+  font-size: 26px;
+}

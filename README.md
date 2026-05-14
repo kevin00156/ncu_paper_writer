@@ -9,6 +9,8 @@
 
 用 **Markdown** 寫論文、用 **Zotero** 管文獻、用 **Pandoc + XeLaTeX** 一鍵產出符合 NCU 規範的 PDF，並用 **Claude Code Skill** 輔助撰寫。
 
+口試也用同一個 repo：**Markdown + Marp** 產生口試簡報 PDF / HTML。
+
 ---
 
 ## 為什麼選這套？
@@ -98,29 +100,60 @@ make build INPUT=my-thesis/paper.md
 
 ---
 
+## 口試簡報（Marp）
+
+論文寫完了？同一個 repo 也能寫口試 PPT：
+
+```bash
+# 1. 安裝 marp-cli（首次）
+bash scripts/install-marp.sh      # Linux / macOS
+.\scripts\install-marp.ps1        # Windows
+
+# 2. 複製簡報骨架
+cp -r template-slides/ my-defense/
+
+# 3. 編輯 my-defense/slides.md（Marp Markdown 語法）
+
+# 4. 編譯
+./build-slides.sh my-defense/slides.md --pdf
+# 或
+make slides SLIDES=my-defense/slides.md
+```
+
+簡報用獨立的 `ncu-slides-writer` Claude skill 協助你掌握口試節奏、頁數、版面。設計上不共享論文內容（口試是口頭表達，不是論文縮小版）。詳見 [template-slides/CLAUDE.md](template-slides/CLAUDE.md)。
+
+---
+
 ## 目錄結構
 
 ```
 ncu_paper_writer/
-├── template/                # 論文骨架（你會複製這個出去）
+├── template/                # 論文骨架（cp -r 出去當你的論文起點）
 │   ├── paper.md             # YAML metadata + 章節骨架
 │   ├── references.bib       # BibTeX 範例
 │   └── CLAUDE.md            # 自動載入 skill 提示
-├── templates/               # Pandoc LaTeX 模板（不需動）
-│   └── ncu.latex
-├── cites/                   # 引用樣式
+├── template-slides/         # 口試簡報骨架（cp -r 出去當你的簡報起點）
+│   ├── slides.md            # Marp frontmatter + 章節骨架
+│   ├── theme.css            # 個人化主題微調
+│   └── CLAUDE.md            # 自動載入 slides skill 提示
+├── templates/               # Pandoc / Marp 模板資源（不需動）
+│   ├── ncu.latex            # Pandoc LaTeX 模板
+│   └── marp/ncu.css         # Marp 簡報主題（保守海軍藍）
+├── cites/                   # 引用樣式（僅論文用，簡報不用引用）
 │   └── ieee.csl
 ├── skill/                   # Claude Code Skill 來源
-│   └── ncu-paper-writer/
-│       └── SKILL.md
+│   ├── ncu-paper-writer/    # 論文撰寫 skill
+│   └── ncu-slides-writer/   # 簡報撰寫 skill
 ├── scripts/                 # 安裝、健檢、字體偵測工具
 │   ├── install.{ps1,sh}
 │   ├── install-skill.{ps1,sh}
+│   ├── install-marp.{ps1,sh}
 │   ├── check-env.{ps1,sh}
 │   └── check-fonts.py
 ├── examples/                # 可編譯範例
-│   ├── minimal/             # 最小範例
-│   └── full/                # 完整範例（含表格、公式、子圖）
+│   ├── minimal/             # 最小論文範例
+│   ├── full/                # 完整論文範例
+│   └── slides-minimal/      # 最小簡報範例
 ├── docs/                    # 詳細教學
 │   ├── 01-installation.md
 │   ├── 02-writing-workflow.md
@@ -128,7 +161,8 @@ ncu_paper_writer/
 │   ├── 04-pandoc-syntax.md
 │   ├── 05-troubleshooting.md
 │   └── 06-customization.md
-├── build.{ps1,sh}           # 編譯腳本
+├── build.{ps1,sh}           # 論文編譯腳本
+├── build-slides.{ps1,sh}    # 簡報編譯腳本
 └── Makefile                 # Linux/macOS make 入口
 ```
 

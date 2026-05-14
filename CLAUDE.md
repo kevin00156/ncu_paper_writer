@@ -6,18 +6,30 @@
 
 ## 專案定位
 
-這是「NCU Paper Writer」工具鏈本身的開發 repo，不是某人的論文。內容包含：
+這是「NCU Paper Writer」工具鏈本身的開發 repo，不是某人的論文。提供兩條獨立的撰寫工作流：
 
+**論文（Pandoc + XeLaTeX）**：
 - Pandoc LaTeX 模板（`templates/ncu.latex`）
 - Claude Code Skill（`skill/ncu-paper-writer/SKILL.md`）
-- 跨平台編譯/安裝腳本（`build.{ps1,sh}`、`scripts/`）
-- 論文骨架模板（`template/`）— **使用者會 `cp -r` 這個目錄當論文起點**
-- 範例（`examples/minimal`、`examples/full`）— CI 編譯驗證用
+- 編譯腳本（`build.{ps1,sh}`）
+- 論文骨架（`template/`）— 使用者 `cp -r` 當論文起點
+- 範例（`examples/minimal`、`examples/full`）
+
+**口試簡報（Marp）**：
+- Marp 主題 CSS（`templates/marp/ncu.css`）
+- Claude Code Skill（`skill/ncu-slides-writer/SKILL.md`）
+- 編譯腳本（`build-slides.{ps1,sh}`）
+- 簡報骨架（`template-slides/`）— 使用者 `cp -r` 當簡報起點
+- 範例（`examples/slides-minimal`）
+
+**共用**：
+- 跨平台安裝腳本（`scripts/install*.{ps1,sh}`）
 - 教學文件（`docs/01` ~ `docs/06`）
 
 **重要區分**：
-- `templates/`（複數）= Pandoc 模板資源，由腳本引用
+- `templates/`（複數）= Pandoc / Marp 模板資源，由腳本引用
 - `template/`（單數）= 給使用者複製的論文骨架
+- `template-slides/` = 給使用者複製的口試簡報骨架
 
 ---
 
@@ -156,7 +168,7 @@ PowerShell 5.1 會把 native exe（pandoc/xelatex/biber）的 stderr 包成 `Nat
 
 ### 改 build/install 腳本
 
-實測在 `examples/minimal` 編譯：
+論文（XeLaTeX）實測在 `examples/minimal` 編譯：
 
 ```powershell
 .\build.ps1 examples\minimal\paper.md
@@ -164,13 +176,25 @@ PowerShell 5.1 會把 native exe（pandoc/xelatex/biber）的 stderr 包成 `Nat
 
 PDF 必須 > 10 KB 且 5 頁以上才算通過。
 
+簡報（Marp）實測在 `examples/slides-minimal` 編譯：
+
+```powershell
+.\build-slides.ps1 examples\slides-minimal\slides.md
+```
+
+PDF 必須 > 100 KB 才算通過（Marp 內嵌字體較肥）。首次執行會下載 Chromium。
+
 ### CI 結構（兩支 workflow）
 
-- **`.github/workflows/lint.yml`**：每次 push/PR 都跑（30 秒）。檢查 Skill frontmatter、章節錨點、禁用破折號。
-- **`.github/workflows/build.yml`**：較重（10–15 分鐘），只在以下時機跑：
+- **`.github/workflows/lint.yml`**：每次 push/PR 都跑（30 秒）。檢查 Skill frontmatter、章節錨點、禁用破折號、Marp 簡報頁數上限。
+- **`.github/workflows/build.yml`**：較重（10–15 分鐘），含兩個 job：
+  - `build`：論文 PDF（Ubuntu + TeX Live）
+  - `build-slides`：簡報 PDF/HTML（Ubuntu + Node.js + Chromium）
+
+  只在以下時機跑：
   - PR 開啟/更新
   - 手動 `workflow_dispatch`
-  - push 到 main 且改到 `templates/`、`cites/`、`examples/`、`build.{sh,ps1}`、`Makefile` 或 `build.yml` 自身
+  - push 到 main 且改到 `templates/`、`cites/`、`examples/`、`build*.{sh,ps1}`、`Makefile` 或 `build.yml` 自身
 
 改 docs/skill/template 等不影響編譯的檔案 push 上去只會跑 lint。
 

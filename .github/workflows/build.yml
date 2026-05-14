@@ -17,6 +17,8 @@ on:
       - 'examples/**'
       - 'build.sh'
       - 'build.ps1'
+      - 'build-slides.sh'
+      - 'build-slides.ps1'
       - 'Makefile'
       - '.github/workflows/build.yml'
 
@@ -119,3 +121,81 @@ jobs:
             examples/**/*.aux
             examples/**/*.blg
           retention-days: 7
+
+  build-slides:
+    name: Build Marp Slides on Ubuntu
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Chromium and CJK fonts (for Marp PDF rendering)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            chromium-browser \
+            fonts-noto-cjk \
+            fonts-noto-cjk-extra
+          # Marp 預設會下載自己的 Chromium，但 GitHub runner 上用 apt 的 chromium 較快
+          echo "CHROME_PATH=$(which chromium-browser)" >> "$GITHUB_ENV"
+
+      - name: Install marp-cli
+        run: npm install -g @marp-team/marp-cli
+
+      - name: Verify environment
+        run: |
+          node --version
+          marp --version
+          chromium-browser --version || true
+          fc-list :lang=zh-tw | head -n3
+
+      - name: Make build script executable
+        run: chmod +x build-slides.sh
+
+      - name: Build minimal slides example (PDF)
+        run: |
+          ./build-slides.sh examples/slides-minimal/slides.md --pdf --verbose
+          ls -lh examples/slides-minimal/slides.pdf
+
+      - name: Build minimal slides example (HTML)
+        run: |
+          ./build-slides.sh examples/slides-minimal/slides.md --html
+          ls -lh examples/slides-minimal/slides.html
+
+      - name: Verify outputs
+        run: |
+          pdf="examples/slides-minimal/slides.pdf"
+          if [ ! -f "$pdf" ]; then
+            echo "::error::Missing PDF: $pdf"
+            exit 1
+          fi
+          size=$(stat -c%s "$pdf")
+          if [ "$size" -lt 102400 ]; then
+            echo "::error::PDF too small ($size bytes, expected > 100 KB): $pdf"
+            exit 1
+          fi
+          echo "PASS: $pdf ($size bytes)"
+
+          html="examples/slides-minimal/slides.html"
+          if [ ! -f "$html" ]; then
+            echo "::error::Missing HTML: $html"
+            exit 1
+          fi
+          echo "PASS: $html ($(stat -c%s "$html") bytes)"
+
+      - name: Upload slides artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: example-slides
+          path: |
+            examples/slides-minimal/slides.pdf
+            examples/slides-minimal/slides.html
+          retention-days: 30
