@@ -57,3 +57,7 @@ install.log
 
 # OS temp
 *.tmp
+
+# Local test thesis (cp -r profiles/<profile>/skeleton/ my-test-thesis/)
+my-test-thesis/
+
