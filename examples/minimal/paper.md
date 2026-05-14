@@ -19,8 +19,12 @@ subfigure: true
 geometry: "top=2.5cm, bottom=2.5cm, left=3cm, right=2cm"
 papersize: a4
 
-# CI fallback 字體；本機請改成 "標楷體"
-mainfont: "Times New Roman"
+# CI / 跨平台用免費字體；本機若要符合 NCU 嚴格規範請改成
+#   mainfont: "Times New Roman"
+#   CJKmainfont: "標楷體"
+# Latin Modern Roman：lmodern 套件提供，MiKTeX / TeX Live 都預裝，
+# 不需網路下載也能跑（不像 TeX Gyre Termes 在乾淨 MiKTeX 要先下載）
+mainfont: "Latin Modern Roman"
 CJKmainfont: "Noto Serif CJK TC"
 fontsize: 12pt
 linestretch: 1.5
