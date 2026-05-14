@@ -425,7 +425,7 @@ fi
 echo -e "${GREEN}🎉 安裝完成！${NC}"
 echo ""
 echo "下一步："
-echo "  1. 複製論文骨架：cp -r template/ my-thesis/"
+echo "  1. 複製論文骨架：cp -r profiles/thesis-ncu/skeleton/ my-thesis/"
 echo "  2. 編輯 my-thesis/paper.md 的 YAML metadata"
 echo "  3. 設置 Zotero：見 docs/03-zotero-setup.md"
 echo "  4. 編譯論文：./build.sh my-thesis/paper.md"

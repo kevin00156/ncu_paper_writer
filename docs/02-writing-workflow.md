@@ -5,7 +5,7 @@
 ## 整體流程
 
 ```
-1. 複製 template/ 為自己的論文資料夾
+1. 複製 profiles/thesis-ncu/skeleton/ 為自己的論文資料夾
 2. 設定 Zotero 自動匯出 references.bib
 3. 編輯 paper.md（YAML metadata + 章節內容）
 4. 邊寫邊用 build.sh / build.ps1 編譯預覽
@@ -14,14 +14,14 @@
 
 ## Step 1：建立論文資料夾
 
-從 `template/` 複製出來：
+從對應 profile 的 `skeleton/` 複製出來（NCU 學位論文使用 `thesis-ncu`）：
 
 ```bash
 # Linux/macOS
-cp -r template/ my-thesis/
+cp -r profiles/thesis-ncu/skeleton/ my-thesis/
 
 # Windows PowerShell
-Copy-Item -Recurse template my-thesis
+Copy-Item -Recurse profiles\thesis-ncu\skeleton my-thesis
 ```
 
 可以放在 ncu_paper_writer 內，或獨立目錄都可以（編譯時注意路徑即可）。

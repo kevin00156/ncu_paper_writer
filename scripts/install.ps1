@@ -374,7 +374,7 @@ if ($failCount -gt 0) {
 Write-Host "🎉 安裝完成！" -ForegroundColor Green
 Write-Host ""
 Write-Host "下一步："
-Write-Host "  1. 複製論文骨架：Copy-Item -Recurse template my-thesis"
+Write-Host "  1. 複製論文骨架：Copy-Item -Recurse profiles\thesis-ncu\skeleton my-thesis"
 Write-Host "  2. 編輯 my-thesis\paper.md 的 YAML metadata"
 Write-Host "  3. 設置 Zotero：見 docs\03-zotero-setup.md"
 Write-Host "  4. 編譯論文：.\build.ps1 my-thesis\paper.md"

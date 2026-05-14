@@ -1,0 +1,12 @@
+name: thesis-ncu
+type: thesis
+style: ncu
+description: 國立中央大學（National Central University）學位論文格式。
+language: zh-TW
+template: template.latex
+skeleton: skeleton/
+skill: skill/SKILL.md
+defaults:
+  bib-style: ieee
+  pdf-engine: xelatex
+  csl: shared/cites/ieee.csl

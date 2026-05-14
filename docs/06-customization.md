@@ -4,11 +4,11 @@
 
 ## 修改封面內容
 
-封面是 `template/paper.md` 中嵌入的 LaTeX `titlepage` 環境。你可以直接編輯該段落調整版面。
+封面是 `profiles/thesis-ncu/skeleton/paper.md` 中嵌入的 LaTeX `titlepage` 環境。你可以直接編輯該段落調整版面。
 
 ### 改字型大小
 
-找到 `template/paper.md` 中的封面區塊：
+找到 `profiles/thesis-ncu/skeleton/paper.md` 中的封面區塊：
 
 ```latex
 {\fontsize{24pt}{28pt}\selectfont\bfseries \Spaced[1em]{\UniversityZh}}
@@ -87,7 +87,7 @@ geometry: "top=3cm, bottom=2.5cm, left=3.5cm, right=2cm"
 
 ## 修改章節編號格式
 
-預設「第 X 章」、「X.Y」格式定義在 `template/paper.md` 的 `header-includes` 中：
+預設「第 X 章」、「X.Y」格式定義在 `profiles/thesis-ncu/skeleton/paper.md` 的 `header-includes` 中：
 
 ```latex
 \titleformat{\section}
@@ -177,16 +177,24 @@ geometry: "top=3cm, bottom=2.5cm, left=3.5cm, right=2cm"
 
 ## 修改 LaTeX 模板
 
-最深的客製化是直接編輯 `templates/ncu.latex`。但**強烈建議**先嘗試在 `paper.md` YAML `header-includes` 中覆寫設定，避免直接改模板。
+最深的客製化是直接編輯 `profiles/thesis-ncu/template.latex`。但**強烈建議**先嘗試在 `paper.md` YAML `header-includes` 中覆寫設定，避免直接改模板。
 
 如果一定要改：
 
-1. 複製一份模板：`cp templates/ncu.latex templates/my-custom.latex`
+1. 複製一份模板：`cp profiles/thesis-ncu/template.latex profiles/thesis-ncu/my-custom.latex`
 2. 編輯 my-custom.latex
 3. 編譯時指定：
    ```bash
-   ./build.sh paper.md --template templates/my-custom.latex
+   ./build.sh paper.md --template profiles/thesis-ncu/my-custom.latex
    ```
+
+或者複製整個 profile 自成一套：
+
+```bash
+cp -r profiles/thesis-ncu profiles/thesis-myschool
+# 編輯 profiles/thesis-myschool/{template.latex, skeleton/, skill/SKILL.md, profile.yaml}
+./build.sh paper.md --profile thesis-myschool
+```
 
 ## 不同學位、不同系所
 
@@ -215,14 +223,16 @@ program: "光機電工程碩士學位學程"
 
 ## 改用其他大學模板
 
-目前模板專為 NCU 設計。其他大學可基於此修改：
+每個學校（或期刊）是一個獨立的 profile，位於 `profiles/<type>-<style>/`。新增 profile 步驟：
 
-1. Fork 整個 repo
-2. 修改 `templates/ncu.latex` 中的封面格式（`\Spaced` 巨集、字級、間距）
-3. 調整 `paper.md` 的 YAML metadata 與 titlepage LaTeX 環境
-4. 修改 SKILL.md 中的規範描述
+1. `cp -r profiles/thesis-ncu profiles/thesis-myschool`
+2. 修改 `profiles/thesis-myschool/profile.yaml` 的 name、style、description
+3. 修改 `profiles/thesis-myschool/template.latex` 的封面 macro 預設值（`\UniversityZh` 等）
+4. 修改 `profiles/thesis-myschool/skeleton/paper.md` 的封面 raw LaTeX 區塊（`\Spaced` 字距、字級、版面）
+5. 修改 `profiles/thesis-myschool/skill/SKILL.md` 中的字型/格式規範
+6. `./build.sh paper.md --profile thesis-myschool` 測試
 
-歡迎 PR 回 ncu_paper_writer 加入新學校模板！
+歡迎 PR 加入新學校 profile！
 
 ## 進階：自訂 Pandoc filter
 

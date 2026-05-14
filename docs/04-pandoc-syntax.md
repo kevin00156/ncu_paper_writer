@@ -284,6 +284,6 @@ L_2 &= \|w\|_2^2 \label{eq:l2-reg}
 
 ## 下一步
 
-- 完整規範：`skill/ncu-paper-writer/SKILL.md`
+- 完整規範：`profiles/thesis-ncu/skill/SKILL.md`
 - Pandoc 官方手冊：<https://pandoc.org/MANUAL.html>
 - 疑難排解：[05-troubleshooting.md](05-troubleshooting.md)

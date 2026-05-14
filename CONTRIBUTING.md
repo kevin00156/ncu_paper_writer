@@ -52,13 +52,13 @@ docs: 補充 Zotero Better BibTeX 截圖
 
 本專案有兩支 GitHub Actions workflow：
 
-- **Lint**（`.github/workflows/lint.yml`）：每次 push / PR 都會跑，30 秒內結束。檢查 Skill frontmatter、template 章節錨點、論文內容禁用「——」。
+- **Lint**（`.github/workflows/lint.yml`）：每次 push / PR 都會跑，30 秒內結束。檢查每個 profile 的 SKILL.md frontmatter、skeleton 章節錨點、論文內容禁用「——」。
 - **Build**（`.github/workflows/build.yml`）：較重（裝 TeX Live 約 10–15 分鐘），只在以下時機跑：
   - PR 開啟/更新
   - 手動觸發（在 GitHub Actions 頁面點 "Run workflow"）
-  - push 到 main 且**改動了編譯相關檔案**：`templates/`、`cites/`、`examples/`、`build.sh`、`build.ps1`、`Makefile`、或 build.yml 自身
+  - push 到 main 且**改動了編譯相關檔案**：`profiles/`、`shared/`、`examples/`、`build.sh`、`build.ps1`、`Makefile`、或 build.yml 自身
 
-純改 docs/skill/template 不會觸發 build。若你想驗證模板改動的編譯結果，**請開 PR**（會自動跑 build），或在本機跑 `./build.sh examples/full/paper.md`。
+純改 docs 不會觸發 build。若你想驗證模板改動的編譯結果，**請開 PR**（會自動跑 build），或在本機跑 `./build.sh examples/full/paper.md`。
 
 ## 程式碼風格
 
@@ -70,19 +70,20 @@ docs: 補充 Zotero Better BibTeX 截圖
 
 ## 新增/修改 Skill 內容
 
-如果你想擴充 `skill/ncu-paper-writer/SKILL.md`：
+如果你想擴充某個 profile 的 SKILL.md（例如 `profiles/thesis-ncu/skill/SKILL.md`）：
 
-1. 確認新增內容**是 NCU 規範**，附上規範來源（圖書館連結、官方文件）
+1. 確認新增內容**是該學校/期刊的規範**，附上規範來源（圖書館連結、官方文件）
 2. 不要加入個人偏好（除非有規範依據）
 3. 大幅修改前先開 issue 討論
 
-## 新增其他學校模板
+## 新增其他學校 / 期刊 profile
 
-未來計畫支援多校模板，歡迎 PR：
+歡迎 PR 新增 profile：
 
-- 在 `templates/` 加入 `<school-id>.latex`
-- 在 `template/paper.md` 提供對應的 YAML metadata
-- 在 `docs/` 補充該校格式說明
+1. `cp -r profiles/thesis-ncu profiles/<type>-<style>`（命名 `<type>-<style>`，例 `thesis-ntu`、`journal-ieee`）
+2. 修改 `profile.yaml`、`template.latex`、`skeleton/`、`skill/SKILL.md`
+3. 在 `docs/` 補充該 profile 的格式說明（如有必要）
+4. 確保 `./build.sh --profile <name> profiles/<name>/skeleton/paper.md` 能編譯通過
 
 ## 行為準則
 

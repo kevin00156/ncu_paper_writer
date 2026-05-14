@@ -13,7 +13,8 @@
 #   --no-bib           跳過 biber
 #   --keep-tex         保留 .tex 中間檔
 #   --engine xelatex|lualatex   PDF 引擎（預設 xelatex）
-#   --template <path>  指定模板（預設 templates/ncu.latex）
+#   --profile <name>   Profile 名稱（預設 thesis-ncu，對應 profiles/<name>/）
+#   --template <path>  指定模板（覆寫 --profile 推導出的路徑）
 #   --bib-style <name> biblatex 樣式（預設 ieee）
 #   --verbose          詳細輸出
 #   -h, --help         顯示此說明
@@ -53,9 +54,10 @@ KEEP_TEX=false
 ENGINE="xelatex"
 VERBOSE=false
 BIB_STYLE="ieee"
+PROFILE="thesis-ncu"
+TEMPLATE=""
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TEMPLATE="${SCRIPT_DIR}/templates/ncu.latex"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -65,6 +67,7 @@ while [[ $# -gt 0 ]]; do
         --no-bib) NO_BIB=true; shift ;;
         --keep-tex) KEEP_TEX=true; shift ;;
         --engine) ENGINE="$2"; shift 2 ;;
+        --profile) PROFILE="$2"; shift 2 ;;
         --template) TEMPLATE="$2"; shift 2 ;;
         --bib-style) BIB_STYLE="$2"; shift 2 ;;
         --verbose|-v) VERBOSE=true; shift ;;
@@ -73,6 +76,17 @@ while [[ $# -gt 0 ]]; do
         *) INPUT="$1"; shift ;;
     esac
 done
+
+# Profile → template/CSL 路徑解析（--template 可覆寫）
+PROFILE_DIR="${SCRIPT_DIR}/profiles/${PROFILE}"
+if [[ ! -d "$PROFILE_DIR" ]]; then
+    log_error "找不到 profile：$PROFILE（預期目錄：$PROFILE_DIR）"
+    exit 1
+fi
+if [[ -z "$TEMPLATE" ]]; then
+    TEMPLATE="${PROFILE_DIR}/template.latex"
+fi
+CSL_PATH="${SCRIPT_DIR}/shared/cites/ieee.csl"
 
 # --- 預設輸入檔案 ---
 if [[ -z "$INPUT" ]]; then
@@ -146,15 +160,12 @@ do_build() {
     log_info "複製來源檔案到暫存目錄"
     cp -r "$SRC_DIR"/. "$tmpdir/"
 
-    # 也複製模板與 CSL（若 SRC_DIR 沒有）
-    if [[ ! -d "$tmpdir/templates" ]]; then
-        mkdir -p "$tmpdir/templates"
-    fi
-    cp "$TEMPLATE" "$tmpdir/templates/ncu.latex"
+    # 複製模板到暫存（內部統一命名為 template.latex）
+    cp "$TEMPLATE" "$tmpdir/template.latex"
 
-    if [[ -f "$SCRIPT_DIR/cites/ieee.csl" ]] && [[ ! -f "$tmpdir/cites/ieee.csl" ]]; then
+    if [[ -f "$CSL_PATH" ]] && [[ ! -f "$tmpdir/cites/ieee.csl" ]]; then
         mkdir -p "$tmpdir/cites"
-        cp "$SCRIPT_DIR/cites/ieee.csl" "$tmpdir/cites/ieee.csl"
+        cp "$CSL_PATH" "$tmpdir/cites/ieee.csl"
     fi
 
     cd "$tmpdir"
@@ -165,7 +176,7 @@ do_build() {
         "${INPUT_BASENAME}.md"
         -o "${INPUT_BASENAME}.tex"
         --biblatex
-        --template="templates/ncu.latex"
+        --template="template.latex"
         --pdf-engine="$ENGINE"
     )
     if [[ "$VERBOSE" == "true" ]]; then
@@ -289,6 +300,7 @@ do_watch() {
 log_info "輸入檔案：$INPUT_ABS"
 log_info "輸出目錄：$OUTPUT_DIR"
 log_info "PDF 引擎：$ENGINE"
+log_info "Profile：$PROFILE"
 log_info "Pandoc 模板：$TEMPLATE"
 
 if [[ "$WATCH" == "true" ]]; then

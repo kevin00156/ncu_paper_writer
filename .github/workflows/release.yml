@@ -40,7 +40,7 @@ jobs:
           TAG="${GITHUB_REF#refs/tags/}"
           ARCHIVE_NAME="ncu_paper_writer-${TAG}"
           mkdir -p dist/$ARCHIVE_NAME
-          cp -r templates cites skill template scripts docs dist/$ARCHIVE_NAME/
+          cp -r profiles shared scripts docs dist/$ARCHIVE_NAME/
           cp -r examples dist/$ARCHIVE_NAME/
           cp build.ps1 build.sh Makefile README.md LICENSE CHANGELOG.md CONTRIBUTING.md pyproject.toml .gitignore dist/$ARCHIVE_NAME/
           cd dist

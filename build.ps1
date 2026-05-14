@@ -28,8 +28,12 @@
 .PARAMETER Engine
     PDF 引擎。預設 xelatex。
 
+.PARAMETER ProfileName
+    Profile 名稱（對應 profiles/<name>/）。預設 thesis-ncu。
+    例：thesis-ncu、journal-ieee（未來新增）。
+
 .PARAMETER Template
-    Pandoc LaTeX 模板路徑。預設為 templates/ncu.latex。
+    Pandoc LaTeX 模板路徑。若指定則覆寫 -ProfileName 推導出的模板路徑。
 
 .PARAMETER BibStyle
     biblatex 樣式名稱。預設 ieee。
@@ -60,6 +64,9 @@ param(
 
     [ValidateSet("xelatex", "lualatex")]
     [string]$Engine = "xelatex",
+
+    [Alias("Profile")]
+    [string]$ProfileName = "thesis-ncu",
 
     [string]$Template = "",
     [string]$BibStyle = "ieee"
@@ -98,10 +105,16 @@ function Invoke-Native {
 
 $ScriptDir = Split-Path -Parent $PSCommandPath
 
-# --- 模板預設值 ---
-if (-not $Template) {
-    $Template = Join-Path $ScriptDir "templates\ncu.latex"
+# --- 模板與 CSL 路徑（由 profile 推導，可被 -Template 覆寫） ---
+$ProfileDir = Join-Path $ScriptDir "profiles\$ProfileName"
+if (-not (Test-Path $ProfileDir)) {
+    Write-ErrorMsg "找不到 profile：$ProfileName（預期目錄：$ProfileDir）"
+    exit 1
 }
+if (-not $Template) {
+    $Template = Join-Path $ProfileDir "template.latex"
+}
+$CslPath = Join-Path $ScriptDir "shared\cites\ieee.csl"
 
 # --- 預設輸入 ---
 if (-not $InputFile) {
@@ -187,21 +200,16 @@ function Invoke-Build {
         Write-Info "複製來源檔案到暫存目錄"
         Copy-Item -Path "$SrcDir\*" -Destination $tmpdir -Recurse -Force
 
-        # 複製模板
-        $tmplDir = Join-Path $tmpdir "templates"
-        if (-not (Test-Path $tmplDir)) {
-            New-Item -ItemType Directory -Path $tmplDir -Force | Out-Null
-        }
-        Copy-Item -Path $Template -Destination (Join-Path $tmplDir "ncu.latex") -Force
+        # 複製模板到暫存（內部統一命名為 template.latex）
+        Copy-Item -Path $Template -Destination (Join-Path $tmpdir "template.latex") -Force
 
         # 複製 CSL（若需要）
-        $csl = Join-Path $ScriptDir "cites\ieee.csl"
         $tmpCslDir = Join-Path $tmpdir "cites"
-        if ((Test-Path $csl) -and -not (Test-Path (Join-Path $tmpCslDir "ieee.csl"))) {
+        if ((Test-Path $CslPath) -and -not (Test-Path (Join-Path $tmpCslDir "ieee.csl"))) {
             if (-not (Test-Path $tmpCslDir)) {
                 New-Item -ItemType Directory -Path $tmpCslDir -Force | Out-Null
             }
-            Copy-Item -Path $csl -Destination (Join-Path $tmpCslDir "ieee.csl") -Force
+            Copy-Item -Path $CslPath -Destination (Join-Path $tmpCslDir "ieee.csl") -Force
         }
 
         Push-Location $tmpdir
@@ -214,7 +222,7 @@ function Invoke-Build {
                 "$InputBasename.md",
                 "-o", "$InputBasename.tex",
                 "--biblatex",
-                "--template=templates/ncu.latex",
+                "--template=template.latex",
                 "--pdf-engine=$Engine"
             )
             if ($showOutput) {
@@ -333,6 +341,7 @@ function Invoke-Watch {
 Write-Info "輸入檔案：$InputAbs"
 Write-Info "輸出目錄：$Output"
 Write-Info "PDF 引擎：$Engine"
+Write-Info "Profile：$ProfileName"
 Write-Info "Pandoc 模板：$Template"
 
 if ($Watch) {

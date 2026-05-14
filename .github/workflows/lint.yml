@@ -19,8 +19,8 @@ jobs:
 
       - name: Check Skill front matter
         run: |
-          # Skill 必須有 name 和 description 欄位
-          for skill in skill/*/SKILL.md; do
+          # 每個 profile 的 SKILL.md 必須有 name 和 description 欄位
+          for skill in profiles/*/skill/SKILL.md; do
             if ! grep -q "^name:" "$skill"; then
               echo "::error file=$skill::Missing 'name:' in frontmatter"
               exit 1
@@ -35,9 +35,10 @@ jobs:
       - name: Check for forbidden em-dash in actual paper content
         run: |
           # NCU 規範禁止「——」用於論文正文
-          # 只檢查實際的論文內容（examples 的 paper.md），不檢查說明規則的文件
+          # 檢查實際的論文內容（examples + 所有 profile 的 skeleton/paper.md），不檢查說明規則的文件
           violations=0
-          for f in examples/minimal/paper.md examples/full/paper.md template/paper.md; do
+          targets=$(ls examples/*/paper.md profiles/*/skeleton/paper.md 2>/dev/null)
+          for f in $targets; do
             if [ -f "$f" ]; then
               # 排除註解內容、排除 LaTeX 註解
               if grep -n "——" "$f" | grep -v "^\s*%" | grep -v "^\s*<!--"; then
@@ -51,9 +52,9 @@ jobs:
           fi
           echo "OK: No forbidden em-dashes in paper content"
 
-      - name: Check section anchors in template
+      - name: Check section anchors in profile skeletons
         run: |
-          # template/paper.md 中所有 # / ## 標題後都應有 {#sec:...}
+          # 每個 profile 的 skeleton/paper.md 中所有 # / ## 標題後都應有 {#sec:...}
           python3 - <<'EOF'
           import re, sys
           from pathlib import Path
@@ -91,17 +92,17 @@ jobs:
               return violations
 
           all_violations = []
-          for md in Path("template").glob("*.md"):
+          for md in Path(".").glob("profiles/*/skeleton/*.md"):
               if md.name == "CLAUDE.md":
                   continue
               all_violations.extend(check_file(md))
 
           if all_violations:
-              print("ERROR: Section anchors missing in template/")
+              print("ERROR: Section anchors missing in profile skeletons")
               for v in all_violations:
                   print(f"  {v}")
               sys.exit(1)
-          print("OK: All template sections have section anchors")
+          print("OK: All profile skeleton sections have section anchors")
           EOF
 
       - name: Check Marp slides frontmatter and page count

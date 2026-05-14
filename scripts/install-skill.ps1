@@ -1,8 +1,13 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    安裝 NCU Paper Writer Claude Code Skills
-    預設安裝 skill/ 目錄下所有 skill（含 ncu-paper-writer、ncu-slides-writer）
+    安裝 Claude Code Skills（掃描 profiles/*/skill/ 與 skill/*/ 兩個來源）
+
+.DESCRIPTION
+    預設安裝所有 skill：
+      - profiles/<name>/skill/SKILL.md（論文 profile 自帶的 skill，例：thesis-ncu）
+      - skill/<name>/SKILL.md（不屬於任何 profile 的 skill，例：ncu-slides-writer）
+    安裝目錄名稱沿用 SKILL.md frontmatter 的 name 欄位。
 
 .PARAMETER User
     安裝到 ~\.claude\skills\（預設，跨專案共用）
@@ -14,7 +19,8 @@
     已存在則直接覆蓋（不備份）
 
 .PARAMETER Only
-    僅安裝指定 skill（例：-Only ncu-paper-writer）
+    僅安裝指定 skill name（依 SKILL.md frontmatter 比對）。
+    例：-Only ncu-paper-writer 或 -Only ncu-slides-writer
 
 .EXAMPLE
     .\scripts\install-skill.ps1
@@ -47,33 +53,44 @@ function Write-WarnMsg  { param([string]$m) Write-Host "[WARN]  " -ForegroundCol
 function Write-Fail     { param([string]$m) Write-Host "[ERROR] " -ForegroundColor Red -NoNewline; Write-Host $m }
 
 $ScriptDir = Split-Path -Parent $PSCommandPath
-$SkillsSource = Join-Path (Split-Path -Parent $ScriptDir) "skill"
-
-if (-not (Test-Path $SkillsSource)) {
-    Write-Fail "找不到 skill 來源目錄：$SkillsSource"
-    exit 1
-}
+$RepoRoot = Split-Path -Parent $ScriptDir
 
 $Scope = if ($Project) { "project" } else { "user" }
-
 if ($Scope -eq "user") {
     $TargetBase = Join-Path $env:USERPROFILE ".claude\skills"
 } else {
     $TargetBase = Join-Path (Get-Location) ".claude\skills"
 }
 
-Write-Info "來源：$SkillsSource"
 Write-Info "目標：$TargetBase (scope=$Scope)"
+
+# 從 SKILL.md frontmatter 讀取 name 欄位（決定安裝目錄名稱）
+function Get-SkillName {
+    param([string]$SkillMd)
+    $match = Select-String -Path $SkillMd -Pattern "^name:\s*(.+)$" | Select-Object -First 1
+    if (-not $match) { return $null }
+    return $match.Matches[0].Groups[1].Value.Trim()
+}
 
 function Install-OneSkill {
     param(
         [string]$SourceDir
     )
-    $skillName = Split-Path -Leaf $SourceDir
 
-    if (-not (Test-Path (Join-Path $SourceDir "SKILL.md"))) {
-        Write-WarnMsg "$skillName 缺少 SKILL.md，跳過"
-        return $false
+    $skillMd = Join-Path $SourceDir "SKILL.md"
+    if (-not (Test-Path $skillMd)) {
+        Write-WarnMsg "$SourceDir 缺少 SKILL.md，跳過"
+        return $null
+    }
+
+    $skillName = Get-SkillName -SkillMd $skillMd
+    if (-not $skillName) {
+        Write-WarnMsg "$skillMd 無法讀取 frontmatter 的 name 欄位，跳過"
+        return $null
+    }
+
+    if ($Only -and $skillName -ne $Only) {
+        return $null
     }
 
     $targetDir = Join-Path $TargetBase $skillName
@@ -96,32 +113,48 @@ function Install-OneSkill {
     Copy-Item -Path $SourceDir -Destination $targetDir -Recurse -Force
 
     if (Test-Path (Join-Path $targetDir "SKILL.md")) {
-        Write-Ok "$skillName 安裝成功"
-        return $true
+        Write-Ok "$skillName 安裝成功（來源：$SourceDir）"
+        return $skillName
     } else {
         Write-Fail "$skillName 安裝失敗"
-        return $false
+        return $null
     }
 }
 
+# 收集所有 skill 來源目錄：profiles/*/skill/ 與 skill/*/
+$sources = @()
+
+$profilesDir = Join-Path $RepoRoot "profiles"
+if (Test-Path $profilesDir) {
+    Get-ChildItem -Path $profilesDir -Directory | ForEach-Object {
+        $skillDir = Join-Path $_.FullName "skill"
+        if (Test-Path $skillDir) { $sources += $skillDir }
+    }
+}
+
+$topSkillDir = Join-Path $RepoRoot "skill"
+if (Test-Path $topSkillDir) {
+    Get-ChildItem -Path $topSkillDir -Directory | ForEach-Object {
+        $sources += $_.FullName
+    }
+}
+
+if ($sources.Count -eq 0) {
+    Write-Fail "找不到任何 skill 來源（profiles/*/skill/ 或 skill/*/）"
+    exit 1
+}
+
 $installed = 0
-Get-ChildItem -Path $SkillsSource -Directory | ForEach-Object {
-    $skillName = $_.Name
-
-    if ($Only -and $skillName -ne $Only) {
-        return
-    }
-
-    if (Install-OneSkill -SourceDir $_.FullName) {
-        $installed++
-    }
+foreach ($src in $sources) {
+    $result = Install-OneSkill -SourceDir $src
+    if ($result) { $installed++ }
 }
 
 if ($installed -eq 0) {
     if ($Only) {
         Write-Fail "找不到 skill：$Only"
     } else {
-        Write-Fail "skill\ 目錄下沒有可安裝的 skill"
+        Write-Fail "沒有任何 skill 被安裝"
     }
     exit 1
 }

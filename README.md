@@ -73,10 +73,10 @@ bash scripts/install.sh
 
 ```bash
 # Windows
-Copy-Item -Recurse template my-thesis
+Copy-Item -Recurse profiles\thesis-ncu\skeleton my-thesis
 
 # Linux/macOS
-cp -r template/ my-thesis/
+cp -r profiles/thesis-ncu/skeleton/ my-thesis/
 ```
 
 ### 4. 編輯 `my-thesis/paper.md`
@@ -128,21 +128,27 @@ make slides SLIDES=my-defense/slides.md
 
 ```
 ncu_paper_writer/
-├── template/                # 論文骨架（cp -r 出去當你的論文起點）
-│   ├── paper.md             # YAML metadata + 章節骨架
-│   ├── references.bib       # BibTeX 範例
-│   └── CLAUDE.md            # 自動載入 skill 提示
+├── profiles/                # 論文 profile（學校/期刊樣式，每個 profile 自成一套）
+│   ├── README.md
+│   └── thesis-ncu/          # 國立中央大學學位論文 profile
+│       ├── profile.yaml     # 元資料：name, type, defaults
+│       ├── template.latex   # Pandoc LaTeX 模板
+│       ├── skeleton/        # 論文骨架（cp -r 出去當你的論文起點）
+│       │   ├── paper.md
+│       │   ├── references.bib
+│       │   ├── images/
+│       │   └── CLAUDE.md
+│       └── skill/
+│           └── SKILL.md     # 論文撰寫 skill
 ├── template-slides/         # 口試簡報骨架（cp -r 出去當你的簡報起點）
 │   ├── slides.md            # Marp frontmatter + 章節骨架
 │   ├── theme.css            # 個人化主題微調
 │   └── CLAUDE.md            # 自動載入 slides skill 提示
-├── templates/               # Pandoc / Marp 模板資源（不需動）
-│   ├── ncu.latex            # Pandoc LaTeX 模板
+├── templates/               # Marp 模板資源（簡報主題）
 │   └── marp/ncu.css         # Marp 簡報主題（保守海軍藍）
-├── cites/                   # 引用樣式（僅論文用，簡報不用引用）
-│   └── ieee.csl
-├── skill/                   # Claude Code Skill 來源
-│   ├── ncu-paper-writer/    # 論文撰寫 skill
+├── shared/                  # 跨 profile 共用資源
+│   └── cites/ieee.csl       # 論文引用樣式（簡報不用引用）
+├── skill/                   # 跨工作流 Skill 來源（目前僅簡報）
 │   └── ncu-slides-writer/   # 簡報撰寫 skill
 ├── scripts/                 # 安裝、健檢、字體偵測工具
 │   ├── install.{ps1,sh}
@@ -161,7 +167,7 @@ ncu_paper_writer/
 │   ├── 04-pandoc-syntax.md
 │   ├── 05-troubleshooting.md
 │   └── 06-customization.md
-├── build.{ps1,sh}           # 論文編譯腳本
+├── build.{ps1,sh}           # 論文編譯腳本（接受 --profile <name>）
 ├── build-slides.{ps1,sh}    # 簡報編譯腳本
 └── Makefile                 # Linux/macOS make 入口
 ```
