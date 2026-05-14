@@ -45,6 +45,7 @@ jobs:
             texlive-latex-recommended \
             texlive-latex-extra \
             texlive-lang-cjk \
+            texlive-lang-chinese \
             texlive-fonts-recommended \
             texlive-fonts-extra \
             texlive-bibtex-extra \
@@ -53,9 +54,14 @@ jobs:
             lmodern \
             fonts-noto-cjk \
             fonts-noto-cjk-extra
-          # texlive-latex-recommended 提供 lmodern.sty、url.sty 等核心
-          # texlive-latex-extra 提供 titlesec、subfigure、xeCJK 相依等
-          # 額外裝 lmodern 套件確保 lmodern.sty 存在（Pandoc 模板會 \usepackage{lmodern}）
+          # apt 套件對應的關鍵 .sty：
+          #   lmodern                      → lmodern.sty (Pandoc 模板 \usepackage{lmodern})
+          #   texlive-latex-recommended    → url.sty、fancyhdr.sty、caption.sty 等核心
+          #   texlive-latex-extra          → titlesec.sty、subfigure.sty、ragged2e.sty、fp.sty
+          #   texlive-lang-cjk             → xeCJK.sty (CJK 主套件)
+          #   texlive-lang-chinese         → ctex.sty、ctexhook.sty (xeCJK 的中文相關依賴)
+          #   texlive-fonts-*              → 字型檔
+          #   texlive-bibtex-extra         → biblatex-ieee.bbx
 
       - name: Verify environment
         run: |
