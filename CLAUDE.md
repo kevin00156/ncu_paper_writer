@@ -83,36 +83,76 @@ git branch --show-current  # 應該是 main
 
 如果發現自己在主工作目錄而非 `.wt-main`，**先 `cd` 過去**再開始任何 commit。
 
-### 一律使用 `git rebase`
+### main 是受保護分支：所有變更必走 PR
 
-**不要用 `git merge --no-ff` 或 merge commit。** 保持線性歷史。
+GitHub 端對 `main` 已開啟 branch protection（透過 REST API `PUT /repos/{owner}/{repo}/branches/main/protection` 設定），規則如下：
 
-### 合併 feature/test 分支回 main 的標準做法
+- **必須透過 PR 合併** — 直接 `git push origin main` 會被 server reject
+- **線性歷史強制** — 只接受 rebase / fast-forward 形式的合併，PR 必須 rebase 到最新 main 才能合進去
+- **`enforce_admins: true`** — 連 repo owner（含本人）都不能繞過；想直接 commit 上 main 就是不行
+- **必跑 `Lint Skill markdown` 才能合併**（CI status check 強制）
+- **禁止 force push、禁止刪除 main**
+- **PR conversation 須全部 resolved 才能合併**
+- 目前 `required_approving_review_count: 0`（個人開發階段可自合）；加入協作者後調高為 1，並考慮開啟 `require_code_owner_reviews`
+
+**結論：所有工具修改一律走「feature 分支 → PR → rebase 合併」**，無例外。
+
+### 標準開發流程（強制）
 
 ```bash
-# 在功能分支上完成 commits 後：
-git checkout main
-git rebase <feature-branch>   # main 快轉到 feature 分支頂端
-git branch -d <feature-branch>  # 可選：刪除已合併的分支
+# 1. 在 .wt-main 確認在最新 main 上
+cd ../paperforge.wt-main          # 名稱未改前用 ncu_paper_writer.wt-main
+git fetch origin
+git rebase origin/main            # 同步到最新 main
+
+# 2. 開一個專屬該工作的 worktree + feature 分支（或在現有 feature worktree 上工作）
+cd ..
+git worktree add ./paperforge.wt-<short-name> -b <type>/<short-desc> main
+cd paperforge.wt-<short-name>
+
+# 3. 在這個 worktree 寫程式、commit
+# ... edit, git add, git commit ...
+
+# 4. 推上 GitHub
+git push -u origin <type>/<short-desc>
+
+# 5. 開 PR（標題用 Conventional Commits 風格）
+gh pr create --title "feat: ..." --body "..."
+
+# 6. 等 lint 過綠後，rebase merge（保持線性歷史）
+gh pr merge --rebase --delete-branch
+
+# 7. 同步本地 main
+cd ../paperforge.wt-main
+git fetch origin
+git rebase origin/main
+
+# 8. 清理用完的 worktree
+git worktree remove ../paperforge.wt-<short-name>
 ```
 
 ### 若 main 在 feature 分支期間有更新
 
 ```bash
-# 先把 feature 分支 rebase 到最新 main 上
-git checkout <feature-branch>
-git rebase main
-# 解決衝突（若有）後
-git checkout main
-git rebase <feature-branch>   # 快轉
+# 在 feature 分支 worktree 中：
+git fetch origin
+git rebase origin/main
+# 解決衝突（若有）後 force-push（force-with-lease 較安全）
+git push --force-with-lease
+# PR 會自動更新；等 CI 重跑後即可 merge
 ```
+
+> 注意：`--force-with-lease` 只對 feature 分支安全且必要；對 `main` 任何形式的 force push 都被 server 擋下，不要嘗試。
 
 ### 不要做的事
 
-- ❌ `git merge --no-ff`（產生 merge commit、非線性歷史）
+- ❌ 直接 `git push origin main` — server 會 reject，不要試圖繞過
+- ❌ `git merge --no-ff`（產生 merge commit、非線性歷史，且 protection 也會擋）
 - ❌ `git merge feature-branch`（同上）
 - ❌ `git pull` 不加 `--rebase`（會產生 merge commit）— 建議設 `git config pull.rebase true`
-- ❌ `git push --force` 到 `main`（除非使用者明確要求）
+- ❌ `git push --force` 到 `main`（被 protection 擋；對 feature 分支用 `--force-with-lease`）
+- ❌ `gh pr merge --merge` 或 `--squash` 形式合併 — 用 `--rebase` 才符合 linear history 要求
+- ❌ 改 branch protection 設定不留紀錄 — 任何調整都該在 CLAUDE.md 同步更新
 
 ### Commit message 慣例
 
