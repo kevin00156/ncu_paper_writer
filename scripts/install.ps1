@@ -88,6 +88,21 @@ function Invoke-Run {
     return ($LASTEXITCODE -eq 0)
 }
 
+# PowerShell 5.1 會把 native exe 的 stderr 包成 NativeCommandError，
+# 配合 $ErrorActionPreference = "Stop" 會中斷腳本（即使 exit code = 0）。
+# 呼叫 native command 時改用此 helper，與 scripts\build.ps1 一致。
+function Invoke-Native {
+    param([string]$Cmd, [string[]]$ArgList)
+    $prevPref = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        & $Cmd @ArgList 2>&1 | Out-Null
+        return $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $prevPref
+    }
+}
+
 function Test-Command {
     param([string]$Name)
     return $null -ne (Get-Command $Name -ErrorAction SilentlyContinue)
@@ -162,7 +177,7 @@ function Install-MiKTeXStep {
     if (Test-Command "initexmf") {
         Write-Info "啟用 MiKTeX 自動安裝缺套件"
         if (-not $DryRun) {
-            & initexmf --set-config-value '[MPM]AutoInstall=1' 2>$null
+            $null = Invoke-Native -Cmd "initexmf" -ArgList @("--set-config-value", "[MPM]AutoInstall=1")
         }
 
         Write-Info "預先安裝必要的 LaTeX 套件（可能需要數分鐘）"
@@ -173,7 +188,7 @@ function Install-MiKTeXStep {
         if (-not $DryRun) {
             foreach ($pkg in $packages) {
                 Write-Host "  安裝套件：$pkg" -ForegroundColor Gray
-                & mpm --install=$pkg 2>$null | Out-Null
+                $null = Invoke-Native -Cmd "mpm" -ArgList @("install", $pkg)
             }
         } else {
             Write-Host "[DRY-RUN] 將安裝 MiKTeX 套件：$($packages -join ', ')" -ForegroundColor Yellow
