@@ -1,7 +1,7 @@
 /*
  * 個人微調用 CSS
  *
- * 不要直接改 templates/marp/ncu.css，那是工具本體；
+ * 不要直接改 profiles/slides-ncu/theme.css，那是工具本體；
  * 在這裡 override 變數或新增規則，保持上游可更新。
  *
  * 使用方式：

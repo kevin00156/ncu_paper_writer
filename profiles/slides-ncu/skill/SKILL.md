@@ -31,7 +31,7 @@ description: |
 | 編譯工具 | `@marp-team/marp-cli`（npm 全域安裝）|
 | 預覽 | VS Code Marp 擴充套件即時預覽 |
 | 中文字型 | Noto Sans CJK TC / PingFang TC / 微軟正黑體（無襯線，**不要用標楷體**）|
-| 主題 | `templates/marp/ncu.css`（保守海軍藍） |
+| 主題 | `profiles/slides-ncu/theme.css`（保守海軍藍） |
 | 輸出格式 | PDF（口試現場用）、HTML（瀏覽器播放） |
 | 投影比例 | 16:9 |
 

@@ -19,8 +19,12 @@
 .PARAMETER Watch
     監看模式：偵測檔案變動自動重編。
 
+.PARAMETER ProfileName
+    Profile 名稱（對應 profiles/<name>/）。預設 slides-ncu。
+    例：slides-ncu、slides-ntu（未來新增）。
+
 .PARAMETER Theme
-    主題 CSS 路徑。預設為 templates/marp/ncu.css。
+    主題 CSS 路徑。若指定則覆寫 -ProfileName 推導出的 theme.css。
 
 .PARAMETER Verbose
     詳細輸出。
@@ -46,6 +50,10 @@ param(
     [string]$Format = "pdf",
 
     [switch]$Watch,
+
+    [Alias("Profile")]
+    [string]$ProfileName = "slides-ncu",
+
     [string]$Theme = ""
 )
 
@@ -80,9 +88,16 @@ function Invoke-Native {
 
 $ScriptDir = Split-Path -Parent $PSCommandPath
 
-# --- 主題預設值 ---
+# --- Profile 解析 ---
+$ProfileDir = Join-Path $ScriptDir "profiles\$ProfileName"
+if (-not (Test-Path $ProfileDir)) {
+    Write-ErrorMsg "找不到 profile：$ProfileName（預期目錄：$ProfileDir）"
+    exit 1
+}
+
+# --- 主題預設值（由 profile 推導，可被 -Theme 覆寫） ---
 if (-not $Theme) {
-    $Theme = Join-Path $ScriptDir "templates\marp\ncu.css"
+    $Theme = Join-Path $ProfileDir "theme.css"
 }
 
 # --- 預設輸入 ---
@@ -145,6 +160,7 @@ if (Test-Command "marp") {
 # --- 編譯 ---
 Write-Info "輸入：$InputAbs"
 Write-Info "輸出：$OutputFile"
+Write-Info "Profile：$ProfileName"
 Write-Info "主題：$Theme"
 Write-Info "格式：$Format"
 

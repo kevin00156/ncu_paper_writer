@@ -1,0 +1,11 @@
+name: slides-ncu
+type: slides
+style: ncu
+description: 國立中央大學（NCU）學位論文口試 / 學術簡報。Marp + Markdown 工作流。
+language: zh-TW
+theme: theme.css
+skeleton: skeleton/
+skill: skill/SKILL.md
+defaults:
+  marp: true
+  output: pdf

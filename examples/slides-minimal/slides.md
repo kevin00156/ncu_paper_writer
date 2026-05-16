@@ -46,7 +46,7 @@ description: "驗證 Marp + NCU 主題編譯流程"
 本範例用於驗證 PaperForge 的 Marp 編譯流程：
 
 - **驗證 PDF 輸出**：marp-cli 能產生 > 100 KB 的 PDF
-- **驗證主題套用**：`templates/marp/ncu.css` 正確載入
+- **驗證主題套用**：`profiles/slides-ncu/theme.css` 正確載入
 - **驗證 CJK 渲染**：中文字型 fallback 正常
 
 ---
@@ -78,7 +78,7 @@ description: "驗證 Marp + NCU 主題編譯流程"
 
 - frontmatter 指定 `theme: ncu`
 - 命令列 `--theme-set`
-- CSS 從 `templates/marp/` 載入
+- CSS 從 `profiles/slides-ncu/theme.css` 載入
 
 </div>
 

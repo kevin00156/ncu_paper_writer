@@ -116,7 +116,7 @@ bash scripts/install-marp.sh      # Linux / macOS
 .\scripts\install-marp.ps1        # Windows
 
 # 2. 複製簡報骨架
-cp -r template-slides/ my-defense/
+cp -r profiles/slides-ncu/skeleton/ my-defense/
 
 # 3. 編輯 my-defense/slides.md（Marp Markdown 語法）
 
@@ -126,7 +126,7 @@ cp -r template-slides/ my-defense/
 make slides SLIDES=my-defense/slides.md
 ```
 
-簡報用獨立的 `ncu-slides-writer` Claude skill 協助你掌握節奏、頁數、版面。設計上不共享論文內容（簡報是口頭表達，不是論文縮小版）。詳見 [template-slides/CLAUDE.md](template-slides/CLAUDE.md)。
+簡報用獨立的 `ncu-slides-writer` Claude skill 協助你掌握節奏、頁數、版面。設計上不共享論文內容（簡報是口頭表達，不是論文縮小版）。詳見 [profiles/slides-ncu/skeleton/CLAUDE.md](profiles/slides-ncu/skeleton/CLAUDE.md)。
 
 ---
 
@@ -134,28 +134,31 @@ make slides SLIDES=my-defense/slides.md
 
 ```
 paperforge/
-├── profiles/                # 文件 profile（學校/期刊/單位樣式，每個 profile 自成一套）
+├── profiles/                # 所有 profile（論文／簡報／…，每個 profile 自成一套）
 │   ├── README.md
-│   └── thesis-ncu/          # 國立中央大學學位論文 profile
-│       ├── profile.yaml     # 元資料：name, type, defaults
-│       ├── template.latex   # Pandoc LaTeX 模板
-│       ├── skeleton/        # 骨架（cp -r 出去當你的論文/報告起點）
-│       │   ├── paper.md
-│       │   ├── references.bib
-│       │   ├── images/
+│   ├── thesis-ncu/          # 國立中央大學學位論文 profile（type: thesis）
+│   │   ├── profile.yaml     # 元資料：name, type, style, defaults
+│   │   ├── template.latex   # Pandoc LaTeX 模板
+│   │   ├── skeleton/        # 骨架（cp -r 出去當你的論文/報告起點）
+│   │   │   ├── paper.md
+│   │   │   ├── references.bib
+│   │   │   ├── images/
+│   │   │   └── CLAUDE.md
+│   │   └── skill/
+│   │       └── SKILL.md     # NCU 論文撰寫 skill
+│   └── slides-ncu/          # NCU 學位論文口試簡報 profile（type: slides）
+│       ├── profile.yaml
+│       ├── theme.css        # Marp 主題 CSS（保守海軍藍）
+│       ├── skeleton/        # 簡報骨架（cp -r 出去當你的簡報起點）
+│       │   ├── slides.md
+│       │   ├── theme.css    # 個人化主題微調（@import 主題後 override）
+│       │   ├── assets/
+│       │   ├── Makefile
 │       │   └── CLAUDE.md
 │       └── skill/
-│           └── SKILL.md     # 該 profile 的撰寫 skill
-├── template-slides/         # 簡報骨架（cp -r 出去當你的簡報起點）
-│   ├── slides.md            # Marp frontmatter + 章節骨架
-│   ├── theme.css            # 個人化主題微調
-│   └── CLAUDE.md            # 自動載入 slides skill 提示
-├── templates/               # Marp 模板資源（簡報主題）
-│   └── marp/ncu.css         # Marp 簡報主題（保守海軍藍，源自 NCU 配色）
+│           └── SKILL.md     # NCU 口試簡報撰寫 skill
 ├── shared/                  # 跨 profile 共用資源
 │   └── cites/ieee.csl       # IEEE 引用樣式
-├── skill/                   # 跨工作流 Skill 來源（目前僅簡報；命名由 skill 作者決定）
-│   └── ncu-slides-writer/   # 簡報撰寫 skill（NCU 口試規格）
 ├── scripts/                 # 安裝、健檢、字體偵測工具
 │   ├── install.{ps1,sh}
 │   ├── install-skill.{ps1,sh}

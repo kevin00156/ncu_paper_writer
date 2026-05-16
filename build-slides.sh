@@ -7,13 +7,14 @@
 #   ./build-slides.sh [INPUT] [選項]
 #
 # 選項：
-#   --pdf            輸出 PDF（預設）
-#   --html           輸出 HTML
-#   --watch          監看模式（搭配 --html / --pdf 使用）
-#   --output DIR     輸出目錄（預設為輸入檔目錄）
-#   --theme FILE     主題 CSS（預設 templates/marp/ncu.css）
-#   --verbose        詳細輸出
-#   -h, --help       說明
+#   --pdf              輸出 PDF（預設）
+#   --html             輸出 HTML
+#   --watch            監看模式（搭配 --html / --pdf 使用）
+#   --output DIR       輸出目錄（預設為輸入檔目錄）
+#   --profile <name>   Profile 名稱（預設 slides-ncu，對應 profiles/<name>/）
+#   --theme FILE       主題 CSS（覆寫 --profile 推導出的 theme.css）
+#   --verbose          詳細輸出
+#   -h, --help         說明
 #
 # ============================================================
 
@@ -38,8 +39,9 @@ FORMAT="pdf"
 WATCH=false
 VERBOSE=false
 OUTPUT=""
+PROFILE="slides-ncu"
+THEME=""
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-THEME="$SCRIPT_DIR/templates/marp/ncu.css"
 
 # --- 解析參數 ---
 while [[ $# -gt 0 ]]; do
@@ -49,6 +51,7 @@ while [[ $# -gt 0 ]]; do
         --watch)   WATCH=true; shift ;;
         --verbose) VERBOSE=true; shift ;;
         --output)  OUTPUT="$2"; shift 2 ;;
+        --profile) PROFILE="$2"; shift 2 ;;
         --theme)   THEME="$2"; shift 2 ;;
         -h|--help)
             sed -n '/^# 用法/,/^# ===/p' "$0" | sed 's/^# \?//'
@@ -66,6 +69,16 @@ while [[ $# -gt 0 ]]; do
             shift ;;
     esac
 done
+
+# --- Profile 解析 ---
+PROFILE_DIR="${SCRIPT_DIR}/profiles/${PROFILE}"
+if [[ ! -d "$PROFILE_DIR" ]]; then
+    log_error "找不到 profile：$PROFILE（預期目錄：$PROFILE_DIR）"
+    exit 1
+fi
+if [[ -z "$THEME" ]]; then
+    THEME="${PROFILE_DIR}/theme.css"
+fi
 
 # --- 預設輸入 ---
 if [[ -z "$INPUT" ]]; then
@@ -115,6 +128,7 @@ fi
 # --- 編譯 ---
 log_info "輸入：$INPUT_ABS"
 log_info "輸出：$OUTPUT_FILE"
+log_info "Profile：$PROFILE"
 log_info "主題：$THEME"
 log_info "格式：$FORMAT"
 

@@ -92,9 +92,8 @@ jobs:
               return violations
 
           all_violations = []
-          for md in Path(".").glob("profiles/*/skeleton/*.md"):
-              if md.name == "CLAUDE.md":
-                  continue
+          # 章節錨點規則只適用論文 / 報告（paper.md），不適用 slides.md
+          for md in Path(".").glob("profiles/*/skeleton/paper.md"):
               all_violations.extend(check_file(md))
 
           if all_violations:
