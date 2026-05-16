@@ -136,15 +136,21 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Chromium and CJK fonts (for Marp PDF rendering)
+      - name: Install CJK fonts
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            chromium-browser \
             fonts-noto-cjk \
             fonts-noto-cjk-extra
-          # Marp 預設會下載自己的 Chromium，但 GitHub runner 上用 apt 的 chromium 較快
-          echo "CHROME_PATH=$(which chromium-browser)" >> "$GITHUB_ENV"
+
+      # Ubuntu 24.04 runner 的 apt chromium-browser 是 snap transitional shim，
+      # 容易在 api.snapcraft.io 撞到 HTTP 408 而整段失敗。改讓 marp-cli 透過
+      # puppeteer 內建邏輯自行下載 Chrome for Testing 並快取。
+      - name: Cache Puppeteer Chromium
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/puppeteer
+          key: puppeteer-${{ runner.os }}-v1
 
       - name: Install marp-cli
         run: npm install -g @marp-team/marp-cli
@@ -153,7 +159,6 @@ jobs:
         run: |
           node --version
           marp --version
-          chromium-browser --version || true
           fc-list :lang=zh-tw | head -n3
 
       - name: Make build script executable
