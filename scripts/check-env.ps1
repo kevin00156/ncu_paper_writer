@@ -1,7 +1,7 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    NCU Paper Writer 環境健檢 (Windows)
+    PaperForge 環境健檢 (Windows)
 .DESCRIPTION
     檢查所有必要工具是否可用，並回報版本資訊。
 #>
@@ -20,7 +20,7 @@ function Test-Command { param([string]$Name) return $null -ne (Get-Command $Name
 Write-Host @"
 
 ╔══════════════════════════════════════════════════════════════╗
-║          NCU Paper Writer 環境健檢                           ║
+║          PaperForge 環境健檢                                 ║
 ╚══════════════════════════════════════════════════════════════╝
 "@ -ForegroundColor Cyan
 

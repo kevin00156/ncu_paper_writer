@@ -24,7 +24,7 @@ cp -r profiles/thesis-ncu/skeleton/ my-thesis/
 Copy-Item -Recurse profiles\thesis-ncu\skeleton my-thesis
 ```
 
-可以放在 ncu_paper_writer 內，或獨立目錄都可以（編譯時注意路徑即可）。
+可以放在 PaperForge repo 內，或獨立目錄都可以（編譯時注意路徑即可）。
 
 **建議**：把 `my-thesis/` 作為獨立的 Git repo 來追蹤論文修改歷史。
 

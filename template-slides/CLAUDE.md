@@ -1,6 +1,6 @@
 # NCU 口試簡報專案
 
-本專案使用 [NCU Paper Writer](https://github.com/kevin00156/ncu_paper_writer) 工作流撰寫口試 PPT。
+本專案使用 [PaperForge](https://github.com/kevin00156/paperforge) 的簡報工作流撰寫口試 PPT。
 
 ## Claude Code Skill
 
@@ -13,7 +13,7 @@
 
 ## 編譯
 
-從 NCU Paper Writer 專案根目錄執行：
+從 PaperForge 專案根目錄執行：
 
 - Windows：`..\build-slides.ps1 slides.md`
 - Linux / macOS：`../build-slides.sh slides.md`

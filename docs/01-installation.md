@@ -1,6 +1,6 @@
 # 01 — 安裝教學
 
-本文件詳細說明 NCU Paper Writer 各平台的安裝步驟，以及常見安裝問題的排解。
+本文件詳細說明 PaperForge 各平台的安裝步驟，以及常見安裝問題的排解。
 
 ## 系統需求
 
@@ -16,8 +16,8 @@
 1. 開啟 PowerShell（建議「以系統管理員身分執行」）
 2. Clone repo 並執行安裝腳本：
    ```powershell
-   git clone https://github.com/kevin00156/ncu_paper_writer.git
-   cd ncu_paper_writer
+   git clone https://github.com/kevin00156/paperforge.git
+   cd paperforge
    .\scripts\install.ps1
    ```
 
@@ -29,8 +29,8 @@ Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 ### Linux (Ubuntu / Debian / Fedora / Arch)
 
 ```bash
-git clone https://github.com/kevin00156/ncu_paper_writer.git
-cd ncu_paper_writer
+git clone https://github.com/kevin00156/paperforge.git
+cd paperforge
 bash scripts/install.sh
 ```
 
@@ -38,8 +38,8 @@ bash scripts/install.sh
 
 確認已安裝 [Homebrew](https://brew.sh)，然後：
 ```bash
-git clone https://github.com/kevin00156/ncu_paper_writer.git
-cd ncu_paper_writer
+git clone https://github.com/kevin00156/paperforge.git
+cd paperforge
 bash scripts/install.sh
 ```
 

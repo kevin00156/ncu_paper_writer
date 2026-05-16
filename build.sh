@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================
-# NCU Paper Writer — 跨平台編譯腳本 (Linux/macOS)
+# PaperForge — 跨平台編譯腳本 (Linux/macOS)
 # ============================================================
 #
 # 用法：
@@ -151,7 +151,7 @@ fi
 # --- 核心編譯函式 ---
 do_build() {
     local tmpdir
-    tmpdir="$(mktemp -d "${TMPDIR:-/tmp}/ncu_paper_writer.XXXXXX")"
+    tmpdir="$(mktemp -d "${TMPDIR:-/tmp}/paperforge.XXXXXX")"
     trap "rm -rf '$tmpdir'" EXIT
 
     log_info "暫存目錄：$tmpdir"

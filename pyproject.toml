@@ -1,17 +1,18 @@
 [project]
-name = "ncu-paper-writer"
+name = "paperforge"
 version = "0.1.0"
-description = "國立中央大學碩博士論文 Markdown 寫作工具鏈：Markdown + Zotero + Pandoc + XeLaTeX + Claude Skill"
+description = "PaperForge：用 Markdown + Pandoc + XeLaTeX 鍛造格式精準的論文／報告 PDF，附 Marp 簡報工作流。內建 NCU 學位論文 profile。"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
-    { name = "NCU Paper Writer Contributors" }
+    { name = "PaperForge Contributors" }
 ]
-keywords = ["pandoc", "latex", "thesis", "ncu", "markdown", "zotero", "claude-code"]
+keywords = ["pandoc", "latex", "thesis", "report", "ncu", "markdown", "zotero", "marp", "claude-code"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Natural Language :: Chinese (Traditional)",
     "Operating System :: OS Independent",
@@ -42,10 +43,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/kevin00156/ncu_paper_writer"
-Documentation = "https://github.com/kevin00156/ncu_paper_writer/tree/main/docs"
-Repository = "https://github.com/kevin00156/ncu_paper_writer"
-Issues = "https://github.com/kevin00156/ncu_paper_writer/issues"
+Homepage = "https://github.com/kevin00156/paperforge"
+Documentation = "https://github.com/kevin00156/paperforge/tree/main/docs"
+Repository = "https://github.com/kevin00156/paperforge"
+Issues = "https://github.com/kevin00156/paperforge/issues"
 
 [build-system]
 requires = ["hatchling"]

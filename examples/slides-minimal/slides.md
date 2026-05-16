@@ -2,7 +2,7 @@
 marp: true
 theme: ncu
 paginate: true
-footer: "NCU Paper Writer · 口試簡報範例"
+footer: "PaperForge · 口試簡報範例"
 math: katex
 title: "Marp 最小可編譯範例"
 description: "驗證 Marp + NCU 主題編譯流程"
@@ -43,7 +43,7 @@ description: "驗證 Marp + NCU 主題編譯流程"
 
 ## 問題定義
 
-本範例用於驗證 NCU Paper Writer 的 Marp 編譯流程：
+本範例用於驗證 PaperForge 的 Marp 編譯流程：
 
 - **驗證 PDF 輸出**：marp-cli 能產生 > 100 KB 的 PDF
 - **驗證主題套用**：`templates/marp/ncu.css` 正確載入

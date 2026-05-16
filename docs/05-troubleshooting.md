@@ -184,7 +184,7 @@ brew install --cask font-noto-serif-cjk-tc
 
 ### Skill 描述與行為不一致
 
-**解法**：直接編輯 `~/.claude/skills/ncu-paper-writer/SKILL.md` 補充規則，或開 PR 回 ncu_paper_writer。
+**解法**：直接編輯 `~/.claude/skills/ncu-paper-writer/SKILL.md` 補充規則，或開 PR 回 PaperForge repo（profiles/thesis-ncu/skill/SKILL.md）。
 
 ## Pandoc 版本相容性
 

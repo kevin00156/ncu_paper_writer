@@ -1,5 +1,5 @@
 # NCU 口試簡報 Makefile
-# 假設此資料夾位於 NCU Paper Writer repo 的子目錄
+# 假設此資料夾位於 PaperForge repo 的子目錄
 
 SHELL := /bin/bash
 .PHONY: help pdf html watch clean

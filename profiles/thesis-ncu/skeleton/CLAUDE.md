@@ -1,6 +1,6 @@
 # NCU 論文專案
 
-本專案使用 [NCU Paper Writer](https://github.com/kevin00156/ncu_paper_writer) 工作流撰寫。
+本專案使用 [PaperForge](https://github.com/kevin00156/paperforge) 的 `thesis-ncu` profile 工作流撰寫。
 
 ## Claude Code Skill
 
@@ -14,7 +14,7 @@
 
 ## 編譯
 
-從 NCU Paper Writer 專案根目錄執行（假設此論文資料夾在 NCU Paper Writer 子目錄）：
+從 PaperForge 專案根目錄執行（假設此論文資料夾在 PaperForge 子目錄）：
 
 - Windows: `..\build.ps1 paper.md`
 - Linux/macOS: `../build.sh paper.md`
@@ -24,6 +24,6 @@
 ## 開始撰寫
 
 1. 編輯 `paper.md` 開頭 YAML 區塊，替換所有 `<placeholder>` 為實際內容
-2. 設定 Zotero + Better BibTeX 自動匯出到 `references.bib`（詳見 NCU Paper Writer docs/03）
+2. 設定 Zotero + Better BibTeX 自動匯出到 `references.bib`（詳見 PaperForge docs/03）
 3. 撰寫各章節，記得每個章節都加 `{#sec:...}` 錨點
 4. 編譯產生 PDF，檢視排版

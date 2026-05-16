@@ -1,7 +1,7 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    NCU Paper Writer 跨平台編譯腳本 (Windows PowerShell)
+    PaperForge 跨平台編譯腳本 (Windows PowerShell)
 
 .DESCRIPTION
     將 Markdown 論文檔案編譯成 PDF。
@@ -190,7 +190,7 @@ if (-not (Test-Path $Template)) {
 
 # --- 編譯函式 ---
 function Invoke-Build {
-    $tmpdir = Join-Path $env:TEMP "ncu_paper_writer_$([System.IO.Path]::GetRandomFileName())"
+    $tmpdir = Join-Path $env:TEMP "paperforge_$([System.IO.Path]::GetRandomFileName())"
     New-Item -ItemType Directory -Path $tmpdir -Force | Out-Null
 
     try {

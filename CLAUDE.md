@@ -1,24 +1,24 @@
-# CLAUDE.md — NCU Paper Writer 專案開發指引
+# CLAUDE.md — PaperForge 專案開發指引
 
-本檔案給後續在這個 **repo 本身**進行開發的 Claude 看（不是給「使用此工具寫論文」的使用者看 — 那份在 `profiles/<profile>/skeleton/CLAUDE.md`）。
+本檔案給後續在這個 **repo 本身**進行開發的 Claude 看（不是給「使用此工具寫論文／報告」的使用者看 — 那份在 `profiles/<profile>/skeleton/CLAUDE.md`）。
 
 ---
 
 ## 專案定位
 
-這是「NCU Paper Writer」工具鏈本身的開發 repo，不是某人的論文。提供兩條獨立的撰寫工作流：
+PaperForge 是「Markdown → 格式精準 PDF」的鍛造工具鏈本身的開發 repo，不是某人的論文。提供兩條獨立的撰寫工作流：
 
-**論文（Pandoc + XeLaTeX）** — Phase A 起改為 profile-based：
-- 學校/期刊 profile（`profiles/<type>-<style>/`），每個 profile 自成一套：
+**論文／報告（Pandoc + XeLaTeX）** — 自 Phase A 起改為 profile-based：
+- 學校／期刊／單位 profile（`profiles/<type>-<style>/`），每個 profile 自成一套：
   - `template.latex`：Pandoc LaTeX 模板
-  - `skeleton/`：使用者 `cp -r` 當論文起點的骨架
+  - `skeleton/`：使用者 `cp -r` 當論文／報告起點的骨架
   - `skill/SKILL.md`：Claude Code Skill 撰寫規範
   - `profile.yaml`：元資料（name、type、defaults）
 - 跨 profile 共用資源：`shared/cites/`
 - 編譯腳本：`build.{ps1,sh}`（接受 `--profile <name>`，預設 `thesis-ncu`）
 - 範例：`examples/minimal`、`examples/full`
 
-**口試簡報（Marp）** — 暫未套用 profile 抽象：
+**簡報（Marp）** — 暫未套用 profile 抽象：
 - Marp 主題 CSS（`templates/marp/ncu.css`）
 - Claude Code Skill（`skill/ncu-slides-writer/SKILL.md`）
 - 編譯腳本（`build-slides.{ps1,sh}`）
@@ -29,15 +29,22 @@
 - 跨平台安裝腳本（`scripts/install*.{ps1,sh}`）
 - 教學文件（`docs/01` ~ `docs/06`）
 
-**Profile 命名**：`<type>-<style>`，例 `thesis-ncu`、`journal-ieee`（未來）。
+**Profile 命名**：`<type>-<style>`，例 `thesis-ncu`、`journal-ieee`（未來）、`report-gov-tw`（未來）。
 **目前 Phase A** 只有一個 profile（`thesis-ncu`），共用層尚未抽出 — 等加入第二個 profile 時再依實際差異抽到 `shared/`。
-**Slides 暫不 profile 化**：因為它不是「學位論文 × 學校」這條軸，未來若要支援多校簡報主題再考慮。
+**Slides 暫不 profile 化**：因為它不是「文件類型 × 樣式」這條軸的延伸；未來若要支援多種簡報主題再考慮。
+
+**抽象層 vs profile 內容（重要）**：
+PaperForge 是「殼／框架」 — 負責 profile 載入、build pipeline、跨平台安裝、CI 等共用機制。
+**profile 內容（含 skill、template、skeleton）保留各自學校／機關／單位的原生身分**：
+- skill 的 `name:` 由 profile／skill 作者自己決定（例：`ncu-paper-writer`、`ncu-slides-writer`），**不要強制掛 `paperforge-` 前綴**。
+- 各 SKILL.md、template、skeleton 的內容描述應該以該學校／機關為主語，而非 PaperForge。
+- 改框架時不要動到 profile 的 NCU-specific 內容；要為其他學校／機關新增 profile 時，照 `profiles/<type>-<style>/` 加一份即可。
 
 **目錄區分**：
-- `profiles/`（新）= 論文 profile，每個資料夾自成一套
+- `profiles/`（新）= 文件 profile，每個資料夾自成一套
 - `templates/`（複數）= 跨工作流模板資源（目前只剩 Marp）
 - `template-slides/` = 簡報骨架
-- `skill/`（頂層）= 不屬於任何 profile 的 skill（目前只有 slides skill）
+- `skill/`（頂層）= 不屬於任何 profile 的 skill（目前只有 `ncu-slides-writer`，未來會視抽象層的需要重新組織）
 
 ---
 
@@ -47,8 +54,8 @@
 
 **這個 repo 有「兩條腿」**：
 
-1. **主分支 `main`**：NCU Paper Writer 工具本身的開發
-2. **使用者自己的論文分支**（如 `wu`、`nstc` 等）：使用者把實際論文以 markdown 撰寫時建立的個人分支
+1. **主分支 `main`**：PaperForge 工具本身的開發
+2. **使用者自己的論文／報告分支**（如 `wu`、`nstc` 等）：使用者實際撰寫文件時建立的個人分支
 
 **問題**：使用者在 IDE 中可能正切在自己的論文分支寫論文，這時 Claude 若直接 `git commit` 工具相關修正會誤投到使用者分支上（已踩過兩次，commit `4d7c1c1` 跑到 wu、`1d47953` 跑到 nstc）。
 
@@ -56,12 +63,14 @@
 
 ```bash
 # 一次性設定（第一次需要時建立）
-git worktree add ../ncu_paper_writer.wt-main main
+git worktree add ../paperforge.wt-main main
 
 # 之後所有工具開發都在 worktree 目錄裡操作
-cd ../ncu_paper_writer.wt-main
+cd ../paperforge.wt-main
 # ... 編輯、commit、push 都在這裡
 ```
+
+> 註：在尚未把本機目錄從 `ncu_paper_writer/` 改名為 `paperforge/` 之前，worktree 路徑請沿用 `../ncu_paper_writer.wt-main`；目錄改名後再同步更新。
 
 **檢查清單**：每次開始工具開發任務前先驗證：
 
@@ -71,7 +80,7 @@ pwd                  # 應該在 .wt-main 目錄
 git branch --show-current  # 應該是 main
 ```
 
-如果發現自己在主工作目錄（`ncu_paper_writer/` 本體）而非 `.wt-main`，**先 `cd ../ncu_paper_writer.wt-main`** 再開始任何 commit。
+如果發現自己在主工作目錄而非 `.wt-main`，**先 `cd` 過去**再開始任何 commit。
 
 ### 一律使用 `git rebase`
 
@@ -151,11 +160,11 @@ PowerShell 5.1 會把 native exe（pandoc/xelatex/biber）的 stderr 包成 `Nat
 
 ---
 
-## 撰寫慣例（已寫入 SKILL.md）
+## 撰寫慣例（已寫入各 profile 的 SKILL.md）
 
-對 NCU 論文內容的協助原則放在 `profiles/thesis-ncu/skill/SKILL.md`，不要在 `CLAUDE.md` 重複。修改格式規範時更新 `SKILL.md`，並重新執行 `scripts/install-skill.ps1 -Force` 同步到使用者目錄（其他 profile 同理：`-ProfileName <name>`）。
+各 profile 對應內容的撰寫原則放在 `profiles/<name>/skill/SKILL.md`，不要在 `CLAUDE.md` 重複。修改格式規範時更新對應 `SKILL.md`，並重新執行 `scripts/install-skill.ps1 -Force` 同步到使用者目錄（指定單一 skill：`-Only <skill-name>`，例 `-Only ncu-paper-writer`）。
 
-幾個會反覆遇到的撰寫陷阱：
+幾個會反覆遇到的撰寫陷阱（以 `thesis-ncu` 為例，其他 profile 視規範而定）：
 
 1. **所有章節必須有 `{#sec:...}` 錨點**（包含 `##`、`###`、`####`）
 2. **`\ref{}` 只回傳數字**，中文敘述需手動補「第」「章」「節」前後綴

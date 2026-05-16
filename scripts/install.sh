@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================
-# NCU Paper Writer — Linux/macOS 一鍵安裝腳本
+# PaperForge — Linux/macOS 一鍵安裝腳本
 # ============================================================
 #
 # 安裝項目：
@@ -8,7 +8,7 @@
 #   2. TeX Live (含 XeLaTeX + xeCJK + biber)
 #   3. CJK 字體（Noto CJK 作為 fallback；標楷體需手動下載）
 #   4. Python + uv（可選，用於繪圖腳本）
-#   5. Claude Code Skill (~/.claude/skills/ncu-paper-writer/)
+#   5. Claude Code Skills（各 profile 內附，例：~/.claude/skills/ncu-paper-writer/）
 #   6. 編譯測試（examples/minimal）
 #
 # 用法：
@@ -377,7 +377,7 @@ test_build() {
 # 主流程
 # ============================================================
 echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║          NCU Paper Writer 安裝腳本 (Linux/macOS)             ║${NC}"
+echo -e "${CYAN}║          PaperForge 安裝腳本 (Linux/macOS)                   ║${NC}"
 echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}"
 
 if [[ "$DRY_RUN" == "true" ]]; then

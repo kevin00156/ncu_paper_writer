@@ -1,13 +1,13 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    安裝 Claude Code Skills（掃描 profiles/*/skill/ 與 skill/*/ 兩個來源）
+    PaperForge — 安裝 Claude Code Skills（掃描 profiles/*/skill/ 與 skill/*/ 兩個來源）
 
 .DESCRIPTION
     預設安裝所有 skill：
-      - profiles/<name>/skill/SKILL.md（論文 profile 自帶的 skill，例：thesis-ncu）
+      - profiles/<name>/skill/SKILL.md（論文 profile 自帶的 skill，例：thesis-ncu profile 的 ncu-paper-writer）
       - skill/<name>/SKILL.md（不屬於任何 profile 的 skill，例：ncu-slides-writer）
-    安裝目錄名稱沿用 SKILL.md frontmatter 的 name 欄位。
+    安裝目錄名稱沿用 SKILL.md frontmatter 的 name 欄位（由 skill 作者決定，PaperForge 不強制命名）。
 
 .PARAMETER User
     安裝到 ~\.claude\skills\（預設，跨專案共用）

@@ -1,7 +1,7 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    NCU Paper Writer - Marp 簡報編譯腳本 (Windows PowerShell)
+    PaperForge — Marp 簡報編譯腳本 (Windows PowerShell)
 
 .DESCRIPTION
     將 Markdown 簡報檔案編譯成 PDF 或 HTML。

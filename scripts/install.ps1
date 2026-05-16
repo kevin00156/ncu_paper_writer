@@ -1,7 +1,7 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    NCU Paper Writer Windows 一鍵安裝腳本
+    PaperForge Windows 一鍵安裝腳本
 
 .DESCRIPTION
     安裝以下項目：
@@ -9,7 +9,7 @@
       2. MiKTeX (含 XeLaTeX + xeCJK + biber)
       3. CJK 字體檢查（標楷體為 Windows 內建）
       4. Python + uv（可選）
-      5. Claude Code Skill (~\.claude\skills\ncu-paper-writer\)
+      5. Claude Code Skills（各 profile 內附，例：~\.claude\skills\ncu-paper-writer\）
       6. 編譯測試（examples\minimal）
 
 .PARAMETER DryRun
@@ -97,7 +97,7 @@ function Test-Command {
 Write-Host @"
 
 ╔══════════════════════════════════════════════════════════════╗
-║          NCU Paper Writer 安裝腳本 (Windows)                 ║
+║          PaperForge 安裝腳本 (Windows)                       ║
 ╚══════════════════════════════════════════════════════════════╝
 
 "@ -ForegroundColor Cyan

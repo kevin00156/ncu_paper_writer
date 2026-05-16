@@ -1,4 +1,4 @@
-# NCU Paper Writer Makefile
+# PaperForge Makefile
 # 跨平台編譯入口（Linux/macOS；Windows 請用 build.ps1 / build-slides.ps1）
 
 SHELL := /bin/bash
@@ -11,7 +11,7 @@ INPUT ?= paper.md
 SLIDES ?= slides.md
 
 help:
-	@echo "NCU Paper Writer Make targets:"
+	@echo "PaperForge Make targets:"
 	@echo ""
 	@echo "  -- 論文 (Pandoc + XeLaTeX) --"
 	@echo "  make build [INPUT=path/to/paper.md]   編譯論文（預設 paper.md）"
