@@ -31,9 +31,9 @@ jobs:
 
       - name: Build example PDFs
         run: |
-          chmod +x build.sh
-          ./build.sh examples/minimal/paper.md
-          ./build.sh examples/full/paper.md
+          chmod +x scripts/build.sh
+          ./scripts/build.sh examples/minimal/paper.md
+          ./scripts/build.sh examples/full/paper.md
 
       - name: Create release archive
         run: |
@@ -42,7 +42,7 @@ jobs:
           mkdir -p dist/$ARCHIVE_NAME
           cp -r profiles shared scripts docs dist/$ARCHIVE_NAME/
           cp -r examples dist/$ARCHIVE_NAME/
-          cp build.ps1 build.sh Makefile README.md LICENSE CHANGELOG.md CONTRIBUTING.md pyproject.toml .gitignore dist/$ARCHIVE_NAME/
+          cp Makefile README.md LICENSE CHANGELOG.md CONTRIBUTING.md pyproject.toml .gitignore dist/$ARCHIVE_NAME/
           cd dist
           zip -r "${ARCHIVE_NAME}.zip" "$ARCHIVE_NAME"
           tar czf "${ARCHIVE_NAME}.tar.gz" "$ARCHIVE_NAME"

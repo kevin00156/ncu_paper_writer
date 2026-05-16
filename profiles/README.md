@@ -29,7 +29,7 @@ profiles/<profile>/
     └── SKILL.md         # 撰寫規範（章節錨點、字型、禁用語法等）
 ```
 
-編譯：`./build.sh --profile <name> path/to/paper.md`
+編譯：`./scripts/build.sh --profile <name> path/to/paper.md`
 
 ### `type: slides`（Marp）
 
@@ -47,7 +47,7 @@ profiles/<profile>/
     └── SKILL.md         # 撰寫規範（頁數上限、字數限制、視覺優先等）
 ```
 
-編譯：`./build-slides.sh --profile <name> path/to/slides.md`
+編譯：`./scripts/build-slides.sh --profile <name> path/to/slides.md`
 
 ## 新增一個 profile
 
@@ -58,7 +58,7 @@ profiles/<profile>/
 3. 改 `template.latex` 中校名相關的 macro 預設值（封面字距、頁面尺寸）
 4. 改 `skeleton/paper.md` 的封面 raw LaTeX 區塊
 5. 改 `skill/SKILL.md` 的字型 / 封面 / 格式規範與 frontmatter `name:`
-6. 用 `./build.sh --profile thesis-ntu profiles/thesis-ntu/skeleton/paper.md` 測試
+6. 用 `./scripts/build.sh --profile thesis-ntu profiles/thesis-ntu/skeleton/paper.md` 測試
 
 ### 新增簡報 profile（例：slides-ntu）
 
@@ -67,4 +67,4 @@ profiles/<profile>/
 3. 改 `theme.css` 的配色與字型
 4. 改 `skeleton/slides.md` 的 frontmatter（footer、title）
 5. 改 `skill/SKILL.md` 的口試 / 報告規範與 frontmatter `name:`
-6. 用 `./build-slides.sh --profile slides-ntu profiles/slides-ntu/skeleton/slides.md` 測試
+6. 用 `./scripts/build-slides.sh --profile slides-ntu profiles/slides-ntu/skeleton/slides.md` 測試

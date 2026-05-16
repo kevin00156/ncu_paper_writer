@@ -6,15 +6,15 @@
       "type": "shell",
       "command": "${command:workbench.action.terminal.kill}",
       "windows": {
-        "command": "${workspaceFolder}/build.ps1",
+        "command": "${workspaceFolder}/scripts/build.ps1",
         "args": ["${file}"]
       },
       "linux": {
-        "command": "${workspaceFolder}/build.sh",
+        "command": "${workspaceFolder}/scripts/build.sh",
         "args": ["${file}"]
       },
       "osx": {
-        "command": "${workspaceFolder}/build.sh",
+        "command": "${workspaceFolder}/scripts/build.sh",
         "args": ["${file}"]
       },
       "group": {
@@ -35,15 +35,15 @@
       "label": "Build PDF (verbose)",
       "type": "shell",
       "windows": {
-        "command": "${workspaceFolder}/build.ps1",
+        "command": "${workspaceFolder}/scripts/build.ps1",
         "args": ["${file}", "-Verbose"]
       },
       "linux": {
-        "command": "${workspaceFolder}/build.sh",
+        "command": "${workspaceFolder}/scripts/build.sh",
         "args": ["${file}", "--verbose"]
       },
       "osx": {
-        "command": "${workspaceFolder}/build.sh",
+        "command": "${workspaceFolder}/scripts/build.sh",
         "args": ["${file}", "--verbose"]
       },
       "presentation": {
@@ -59,15 +59,15 @@
       "label": "Watch and Build",
       "type": "shell",
       "windows": {
-        "command": "${workspaceFolder}/build.ps1",
+        "command": "${workspaceFolder}/scripts/build.ps1",
         "args": ["${file}", "-Watch"]
       },
       "linux": {
-        "command": "${workspaceFolder}/build.sh",
+        "command": "${workspaceFolder}/scripts/build.sh",
         "args": ["${file}", "--watch"]
       },
       "osx": {
-        "command": "${workspaceFolder}/build.sh",
+        "command": "${workspaceFolder}/scripts/build.sh",
         "args": ["${file}", "--watch"]
       },
       "isBackground": true,
@@ -84,15 +84,15 @@
       "label": "Clean Intermediates",
       "type": "shell",
       "windows": {
-        "command": "${workspaceFolder}/build.ps1",
+        "command": "${workspaceFolder}/scripts/build.ps1",
         "args": ["${file}", "-Clean"]
       },
       "linux": {
-        "command": "${workspaceFolder}/build.sh",
+        "command": "${workspaceFolder}/scripts/build.sh",
         "args": ["${file}", "--clean"]
       },
       "osx": {
-        "command": "${workspaceFolder}/build.sh",
+        "command": "${workspaceFolder}/scripts/build.sh",
         "args": ["${file}", "--clean"]
       },
       "problemMatcher": []

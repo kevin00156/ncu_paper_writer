@@ -8,7 +8,7 @@
 1. 複製 profiles/thesis-ncu/skeleton/ 為自己的論文資料夾
 2. 設定 Zotero 自動匯出 references.bib
 3. 編輯 paper.md（YAML metadata + 章節內容）
-4. 邊寫邊用 build.sh / build.ps1 編譯預覽
+4. 邊寫邊用 scripts/build.sh / scripts/build.ps1 編譯預覽
 5. 完稿後用監看模式作最後校對
 ```
 
@@ -155,10 +155,10 @@ y = \mathrm{softmax}(W x + b)
 
 ```bash
 # Linux/macOS
-./build.sh my-thesis/paper.md
+./scripts/build.sh my-thesis/paper.md
 
 # Windows
-.\build.ps1 my-thesis\paper.md
+.\scripts\build.ps1 my-thesis\paper.md
 
 # Make
 make build INPUT=my-thesis/paper.md
@@ -171,7 +171,7 @@ make build INPUT=my-thesis/paper.md
 寫作期間建議開監看模式，存檔即重編：
 
 ```bash
-./build.sh my-thesis/paper.md --watch
+./scripts/build.sh my-thesis/paper.md --watch
 ```
 
 按 Ctrl+C 結束。

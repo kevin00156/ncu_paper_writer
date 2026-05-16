@@ -137,7 +137,7 @@ docs(skill): 補入 Windows 實測發現的兩個撰寫慣例
 
 ## Windows 平台關鍵注意事項
 
-實測發現以下兩點容易踩雷，已在 `f04a556` 修正並寫入 `build.ps1`：
+實測發現以下兩點容易踩雷，已在 `f04a556` 修正並寫入 `scripts/build.ps1`：
 
 ### 1. PowerShell 5.1 編碼
 
@@ -157,7 +157,7 @@ $content = [System.IO.File]::ReadAllText("path\to\file.ps1", [System.Text.UTF8En
 
 PowerShell 5.1 會把 native exe（pandoc/xelatex/biber）的 stderr 包成 `NativeCommandError`，當 `$ErrorActionPreference = "Stop"` 時會中斷腳本，**即使 exe 實際 exit code 為 0**（例如 MiKTeX 的 "check for updates" 提示）。
 
-在 `build.ps1` 已新增 `Invoke-Native` helper：呼叫 native command 時改用 `$ErrorActionPreference = "Continue"` 並透過 `$LASTEXITCODE` 檢查。新增其他 native command 呼叫處請沿用此模式。
+在 `scripts/build.ps1` 已新增 `Invoke-Native` helper：呼叫 native command 時改用 `$ErrorActionPreference = "Continue"` 並透過 `$LASTEXITCODE` 檢查。新增其他 native command 呼叫處請沿用此模式。
 
 ---
 
@@ -189,7 +189,7 @@ PowerShell 5.1 會把 native exe（pandoc/xelatex/biber）的 stderr 包成 `Nat
 論文（XeLaTeX）實測在 `examples/minimal` 編譯：
 
 ```powershell
-.\build.ps1 examples\minimal\paper.md
+.\scripts\build.ps1 examples\minimal\paper.md
 ```
 
 PDF 必須 > 10 KB 且 5 頁以上才算通過。
@@ -197,7 +197,7 @@ PDF 必須 > 10 KB 且 5 頁以上才算通過。
 簡報（Marp）實測在 `examples/slides-minimal` 編譯：
 
 ```powershell
-.\build-slides.ps1 examples\slides-minimal\slides.md
+.\scripts\build-slides.ps1 examples\slides-minimal\slides.md
 ```
 
 PDF 必須 > 100 KB 才算通過（Marp 內嵌字體較肥）。首次執行會下載 Chromium。

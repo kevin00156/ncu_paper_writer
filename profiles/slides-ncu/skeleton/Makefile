@@ -17,13 +17,13 @@ help:
 	@echo "  make clean    清除輸出"
 
 pdf:
-	@../build-slides.sh $(INPUT) --pdf
+	@../scripts/build-slides.sh $(INPUT) --pdf
 
 html:
-	@../build-slides.sh $(INPUT) --html
+	@../scripts/build-slides.sh $(INPUT) --html
 
 watch:
-	@../build-slides.sh $(INPUT) --watch
+	@../scripts/build-slides.sh $(INPUT) --watch
 
 clean:
 	@rm -f $(OUTPUT_PDF) $(OUTPUT_HTML)

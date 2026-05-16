@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- **Breaking**：根目錄的 `build.ps1`、`build.sh`、`build-slides.ps1`、`build-slides.sh` 全部搬入 `scripts/`。呼叫方式從 `./build.sh paper.md` 改為 `./scripts/build.sh paper.md`（Windows 同理：`.\scripts\build.ps1`）。Makefile、CI、安裝腳本、profile skeleton 的 Makefile/CLAUDE.md 都已同步更新。
 - **Rebranded**：專案改名為 **PaperForge**。原 `ncu_paper_writer` 是工具最初為 NCU 學位論文設計的暫用名；現在定位為跨學校／期刊／機關的「文件鍛造」框架，每個 profile（如 `thesis-ncu`）保留各自的命名與規範識別。Python 套件名 `ncu-paper-writer` → `paperforge`；GitHub repo 與 URL 預期改為 `kevin00156/paperforge`。框架名不滲透 profile 內容：`ncu-paper-writer` skill 與 `profiles/thesis-ncu/` 維持原名。
 - **Breaking**：目錄結構改為 profile-based。每個學校/期刊樣式是一個 profile，位於 `profiles/<type>-<style>/`：
   - `templates/ncu.latex` → `profiles/thesis-ncu/template.latex`

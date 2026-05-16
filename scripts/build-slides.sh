@@ -4,7 +4,7 @@
 # ============================================================
 #
 # 用法：
-#   ./build-slides.sh [INPUT] [選項]
+#   ./scripts/build-slides.sh [INPUT] [選項]
 #
 # 選項：
 #   --pdf              輸出 PDF（預設）
@@ -42,6 +42,7 @@ OUTPUT=""
 PROFILE="slides-ncu"
 THEME=""
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
 # --- 解析參數 ---
 while [[ $# -gt 0 ]]; do
@@ -71,7 +72,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # --- Profile 解析 ---
-PROFILE_DIR="${SCRIPT_DIR}/profiles/${PROFILE}"
+PROFILE_DIR="${REPO_ROOT}/profiles/${PROFILE}"
 if [[ ! -d "$PROFILE_DIR" ]]; then
     log_error "找不到 profile：$PROFILE（預期目錄：$PROFILE_DIR）"
     exit 1

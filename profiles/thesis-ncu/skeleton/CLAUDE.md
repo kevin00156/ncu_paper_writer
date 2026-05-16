@@ -16,8 +16,8 @@
 
 從 PaperForge 專案根目錄執行（假設此論文資料夾在 PaperForge 子目錄）：
 
-- Windows: `..\build.ps1 paper.md`
-- Linux/macOS: `../build.sh paper.md`
+- Windows: `..\scripts\build.ps1 paper.md`
+- Linux/macOS: `../scripts/build.sh paper.md`
 
 或使用 VS Code 任務面板（Ctrl+Shift+B）。
 

@@ -93,10 +93,10 @@ cp -r profiles/thesis-ncu/skeleton/ my-thesis/
 
 ```bash
 # Windows
-.\build.ps1 my-thesis\paper.md
+.\scripts\build.ps1 my-thesis\paper.md
 
 # Linux/macOS
-./build.sh my-thesis/paper.md
+./scripts/build.sh my-thesis/paper.md
 
 # 或使用 make
 make build INPUT=my-thesis/paper.md
@@ -121,7 +121,7 @@ cp -r profiles/slides-ncu/skeleton/ my-defense/
 # 3. 編輯 my-defense/slides.md（Marp Markdown 語法）
 
 # 4. 編譯
-./build-slides.sh my-defense/slides.md --pdf
+./scripts/build-slides.sh my-defense/slides.md --pdf
 # 或
 make slides SLIDES=my-defense/slides.md
 ```
@@ -159,8 +159,10 @@ paperforge/
 │           └── SKILL.md     # NCU 口試簡報撰寫 skill
 ├── shared/                  # 跨 profile 共用資源
 │   └── cites/ieee.csl       # IEEE 引用樣式
-├── scripts/                 # 安裝、健檢、字體偵測工具
-│   ├── install.{ps1,sh}
+├── scripts/                 # 框架腳本（編譯、安裝、健檢）
+│   ├── build.{ps1,sh}       # 論文編譯（接受 --profile <name>）
+│   ├── build-slides.{ps1,sh}# 簡報編譯（接受 --profile <name>）
+│   ├── install.{ps1,sh}     # 一鍵安裝
 │   ├── install-skill.{ps1,sh}
 │   ├── install-marp.{ps1,sh}
 │   ├── check-env.{ps1,sh}
@@ -176,8 +178,6 @@ paperforge/
 │   ├── 04-pandoc-syntax.md
 │   ├── 05-troubleshooting.md
 │   └── 06-customization.md
-├── build.{ps1,sh}           # 論文編譯腳本（接受 --profile <name>）
-├── build-slides.{ps1,sh}    # 簡報編譯腳本
 └── Makefile                 # Linux/macOS make 入口
 ```
 
@@ -188,7 +188,7 @@ paperforge/
 ### 監看模式（檔案變動自動重編）
 
 ```bash
-./build.sh my-thesis/paper.md --watch
+./scripts/build.sh my-thesis/paper.md --watch
 # 或
 make watch INPUT=my-thesis/paper.md
 ```

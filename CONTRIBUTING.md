@@ -36,7 +36,7 @@
 範例：
 ```
 feat: 新增 macOS 安裝腳本對 brew cask 的支援
-fix: build.sh 在路徑含空白時編譯失敗
+fix: scripts/build.sh 在路徑含空白時編譯失敗
 docs: 補充 Zotero Better BibTeX 截圖
 ```
 
@@ -45,8 +45,8 @@ docs: 補充 Zotero Better BibTeX 截圖
 1. Clone repo
 2. 執行對應 OS 的安裝腳本：`scripts/install.ps1` 或 `bash scripts/install.sh`
 3. 確認可成功編譯 `examples/minimal`：
-   - Windows: `.\build.ps1 examples\minimal\paper.md`
-   - Linux/macOS: `./build.sh examples/minimal/paper.md`
+   - Windows: `.\scripts\build.ps1 examples\minimal\paper.md`
+   - Linux/macOS: `./scripts/build.sh examples/minimal/paper.md`
 
 ## CI 觸發說明
 
@@ -56,9 +56,9 @@ docs: 補充 Zotero Better BibTeX 截圖
 - **Build**（`.github/workflows/build.yml`）：較重（裝 TeX Live 約 10–15 分鐘），只在以下時機跑：
   - PR 開啟/更新
   - 手動觸發（在 GitHub Actions 頁面點 "Run workflow"）
-  - push 到 main 且**改動了編譯相關檔案**：`profiles/`、`shared/`、`examples/`、`build.sh`、`build.ps1`、`Makefile`、或 build.yml 自身
+  - push 到 main 且**改動了編譯相關檔案**：`profiles/`、`shared/`、`examples/`、`scripts/build.sh`、`scripts/build.ps1`、`Makefile`、或 build.yml 自身
 
-純改 docs 不會觸發 build。若你想驗證模板改動的編譯結果，**請開 PR**（會自動跑 build），或在本機跑 `./build.sh examples/full/paper.md`。
+純改 docs 不會觸發 build。若你想驗證模板改動的編譯結果，**請開 PR**（會自動跑 build），或在本機跑 `./scripts/build.sh examples/full/paper.md`。
 
 ## 程式碼風格
 
@@ -83,7 +83,7 @@ docs: 補充 Zotero Better BibTeX 截圖
 1. `cp -r profiles/thesis-ncu profiles/<type>-<style>`（命名 `<type>-<style>`，例 `thesis-ntu`、`journal-ieee`）
 2. 修改 `profile.yaml`、`template.latex`、`skeleton/`、`skill/SKILL.md`
 3. 在 `docs/` 補充該 profile 的格式說明（如有必要）
-4. 確保 `./build.sh --profile <name> profiles/<name>/skeleton/paper.md` 能編譯通過
+4. 確保 `./scripts/build.sh --profile <name> profiles/<name>/skeleton/paper.md` 能編譯通過
 
 ## 行為準則
 

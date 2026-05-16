@@ -101,16 +101,16 @@ brew install --cask font-noto-serif-cjk-tc
 
 ### 編譯失敗，找不到 PDF
 
-**症狀**：build.sh / build.ps1 報告編譯失敗。
+**症狀**：scripts/build.sh 或 scripts/build.ps1 報告編譯失敗。
 
 **步驟**：
 1. 用 `--verbose` 旗標重跑，看完整錯誤訊息：
    ```bash
-   ./build.sh paper.md --verbose
+   ./scripts/build.sh paper.md --verbose
    ```
 2. 用 `--keep-tex` 保留 .tex 中間檔，手動執行 xelatex 看完整錯誤：
    ```bash
-   ./build.sh paper.md --keep-tex
+   ./scripts/build.sh paper.md --keep-tex
    xelatex paper.tex   # 手動執行看錯誤
    ```
 3. 查 `paper.log` 找錯誤行號
@@ -125,8 +125,8 @@ brew install --cask font-noto-serif-cjk-tc
 3. 確保編譯流程包含 biber 步驟（預設有，除非用了 `--no-bib`）
 4. 清理後重編：
    ```bash
-   ./build.sh paper.md --clean
-   ./build.sh paper.md
+   ./scripts/build.sh paper.md --clean
+   ./scripts/build.sh paper.md
    ```
 
 ### `Undefined reference` 警告

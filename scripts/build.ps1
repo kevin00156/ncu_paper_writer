@@ -42,13 +42,13 @@
     詳細輸出。
 
 .EXAMPLE
-    .\build.ps1 paper.md
+    .\scripts\build.ps1 paper.md
 
 .EXAMPLE
-    .\build.ps1 examples\minimal\paper.md --Verbose
+    .\scripts\build.ps1 examples\minimal\paper.md --Verbose
 
 .EXAMPLE
-    .\build.ps1 -Watch
+    .\scripts\build.ps1 -Watch
 #>
 
 [CmdletBinding()]
@@ -104,9 +104,10 @@ function Invoke-Native {
 }
 
 $ScriptDir = Split-Path -Parent $PSCommandPath
+$RepoRoot = Split-Path -Parent $ScriptDir
 
 # --- 模板與 CSL 路徑（由 profile 推導，可被 -Template 覆寫） ---
-$ProfileDir = Join-Path $ScriptDir "profiles\$ProfileName"
+$ProfileDir = Join-Path $RepoRoot "profiles\$ProfileName"
 if (-not (Test-Path $ProfileDir)) {
     Write-ErrorMsg "找不到 profile：$ProfileName（預期目錄：$ProfileDir）"
     exit 1
@@ -114,7 +115,7 @@ if (-not (Test-Path $ProfileDir)) {
 if (-not $Template) {
     $Template = Join-Path $ProfileDir "template.latex"
 }
-$CslPath = Join-Path $ScriptDir "shared\cites\ieee.csl"
+$CslPath = Join-Path $RepoRoot "shared\cites\ieee.csl"
 
 # --- 預設輸入 ---
 if (-not $InputFile) {

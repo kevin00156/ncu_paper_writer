@@ -1,5 +1,5 @@
 # PaperForge Makefile
-# 跨平台編譯入口（Linux/macOS；Windows 請用 build.ps1 / build-slides.ps1）
+# 跨平台編譯入口（Linux/macOS；Windows 請用 scripts/build.ps1 / scripts/build-slides.ps1）
 
 SHELL := /bin/bash
 .PHONY: help build clean distclean watch test test-minimal test-full \
@@ -40,38 +40,38 @@ help:
 	@echo "  make watch INPUT=my-thesis/paper.md"
 
 build:
-	@./build.sh $(INPUT)
+	@./scripts/build.sh $(INPUT)
 
 clean:
-	@./build.sh $(INPUT) --clean
+	@./scripts/build.sh $(INPUT) --clean
 
 distclean: clean
 	@find . -name '*.pdf' -not -path './.git/*' -exec rm -f {} +
 	@echo "Removed all PDF files."
 
 watch:
-	@./build.sh $(INPUT) --watch
+	@./scripts/build.sh $(INPUT) --watch
 
 test: test-minimal test-full
 
 test-minimal:
-	@./build.sh examples/minimal/paper.md
+	@./scripts/build.sh examples/minimal/paper.md
 
 test-full:
-	@./build.sh examples/full/paper.md
+	@./scripts/build.sh examples/full/paper.md
 
 # -- Slides --
 slides:
-	@./build-slides.sh $(SLIDES) --pdf
+	@./scripts/build-slides.sh $(SLIDES) --pdf
 
 slides-html:
-	@./build-slides.sh $(SLIDES) --html
+	@./scripts/build-slides.sh $(SLIDES) --html
 
 slides-watch:
-	@./build-slides.sh $(SLIDES) --watch
+	@./scripts/build-slides.sh $(SLIDES) --watch
 
 test-slides:
-	@./build-slides.sh examples/slides-minimal/slides.md --pdf
+	@./scripts/build-slides.sh examples/slides-minimal/slides.md --pdf
 
 # -- 工具 --
 skill:

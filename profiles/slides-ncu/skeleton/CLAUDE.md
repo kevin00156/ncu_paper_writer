@@ -15,17 +15,17 @@
 
 從 PaperForge 專案根目錄執行：
 
-- Windows：`..\build-slides.ps1 slides.md`
-- Linux / macOS：`../build-slides.sh slides.md`
+- Windows：`..\scripts\build-slides.ps1 slides.md`
+- Linux / macOS：`../scripts/build-slides.sh slides.md`
 
 也可以在 VS Code 安裝 **Marp for VS Code** 擴充套件，即時預覽。
 
 ## 輸出選項
 
 ```bash
-../build-slides.sh slides.md --pdf       # PDF（口試現場最穩，預設）
-../build-slides.sh slides.md --html      # HTML（用瀏覽器播放，支援動畫）
-../build-slides.sh slides.md --watch     # 監看模式
+../scripts/build-slides.sh slides.md --pdf       # PDF（口試現場最穩，預設）
+../scripts/build-slides.sh slides.md --html      # HTML（用瀏覽器播放，支援動畫）
+../scripts/build-slides.sh slides.md --watch     # 監看模式
 ```
 
 ## 開始撰寫

@@ -4,7 +4,7 @@
 # ============================================================
 #
 # 用法：
-#   ./build.sh [<input.md>] [選項]
+#   ./scripts/build.sh [<input.md>] [選項]
 #
 # 選項：
 #   --output <dir>     輸出目錄（預設：原檔目錄）
@@ -58,6 +58,7 @@ PROFILE="thesis-ncu"
 TEMPLATE=""
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -78,7 +79,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Profile → template/CSL 路徑解析（--template 可覆寫）
-PROFILE_DIR="${SCRIPT_DIR}/profiles/${PROFILE}"
+PROFILE_DIR="${REPO_ROOT}/profiles/${PROFILE}"
 if [[ ! -d "$PROFILE_DIR" ]]; then
     log_error "找不到 profile：$PROFILE（預期目錄：$PROFILE_DIR）"
     exit 1
@@ -86,7 +87,7 @@ fi
 if [[ -z "$TEMPLATE" ]]; then
     TEMPLATE="${PROFILE_DIR}/template.latex"
 fi
-CSL_PATH="${SCRIPT_DIR}/shared/cites/ieee.csl"
+CSL_PATH="${REPO_ROOT}/shared/cites/ieee.csl"
 
 # --- 預設輸入檔案 ---
 if [[ -z "$INPUT" ]]; then

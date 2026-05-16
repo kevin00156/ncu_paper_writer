@@ -15,10 +15,10 @@ on:
       - 'profiles/**'
       - 'shared/**'
       - 'examples/**'
-      - 'build.sh'
-      - 'build.ps1'
-      - 'build-slides.sh'
-      - 'build-slides.ps1'
+      - 'scripts/build.sh'
+      - 'scripts/build.ps1'
+      - 'scripts/build-slides.sh'
+      - 'scripts/build-slides.ps1'
       - 'Makefile'
       - '.github/workflows/build.yml'
 
@@ -73,16 +73,16 @@ jobs:
           fc-list :lang=zh-tw | head -n5
 
       - name: Make build script executable
-        run: chmod +x build.sh
+        run: chmod +x scripts/build.sh
 
       - name: Build minimal example
         run: |
-          ./build.sh examples/minimal/paper.md --verbose
+          ./scripts/build.sh examples/minimal/paper.md --verbose
           ls -lh examples/minimal/paper.pdf
 
       - name: Build full example
         run: |
-          ./build.sh examples/full/paper.md --verbose
+          ./scripts/build.sh examples/full/paper.md --verbose
           ls -lh examples/full/paper.pdf
 
       - name: Verify PDFs are valid
@@ -162,16 +162,16 @@ jobs:
           fc-list :lang=zh-tw | head -n3
 
       - name: Make build script executable
-        run: chmod +x build-slides.sh
+        run: chmod +x scripts/build-slides.sh
 
       - name: Build minimal slides example (PDF)
         run: |
-          ./build-slides.sh examples/slides-minimal/slides.md --pdf --verbose
+          ./scripts/build-slides.sh examples/slides-minimal/slides.md --pdf --verbose
           ls -lh examples/slides-minimal/slides.pdf
 
       - name: Build minimal slides example (HTML)
         run: |
-          ./build-slides.sh examples/slides-minimal/slides.md --html
+          ./scripts/build-slides.sh examples/slides-minimal/slides.md --html
           ls -lh examples/slides-minimal/slides.html
 
       - name: Verify outputs

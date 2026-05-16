@@ -185,7 +185,7 @@ geometry: "top=3cm, bottom=2.5cm, left=3.5cm, right=2cm"
 2. 編輯 my-custom.latex
 3. 編譯時指定：
    ```bash
-   ./build.sh paper.md --template profiles/thesis-ncu/my-custom.latex
+   ./scripts/build.sh paper.md --template profiles/thesis-ncu/my-custom.latex
    ```
 
 或者複製整個 profile 自成一套：
@@ -193,7 +193,7 @@ geometry: "top=3cm, bottom=2.5cm, left=3.5cm, right=2cm"
 ```bash
 cp -r profiles/thesis-ncu profiles/thesis-myschool
 # 編輯 profiles/thesis-myschool/{template.latex, skeleton/, skill/SKILL.md, profile.yaml}
-./build.sh paper.md --profile thesis-myschool
+./scripts/build.sh paper.md --profile thesis-myschool
 ```
 
 ## 不同學位、不同系所
@@ -230,7 +230,7 @@ program: "光機電工程碩士學位學程"
 3. 修改 `profiles/thesis-myschool/template.latex` 的封面 macro 預設值（`\UniversityZh` 等）
 4. 修改 `profiles/thesis-myschool/skeleton/paper.md` 的封面 raw LaTeX 區塊（`\Spaced` 字距、字級、版面）
 5. 修改 `profiles/thesis-myschool/skill/SKILL.md` 中的字型/格式規範
-6. `./build.sh paper.md --profile thesis-myschool` 測試
+6. `./scripts/build.sh paper.md --profile thesis-myschool` 測試
 
 歡迎 PR 加入新學校 profile！
 
@@ -239,7 +239,7 @@ program: "光機電工程碩士學位學程"
 對於高度自訂，可以寫 Pandoc Lua filter：
 
 1. 在論文資料夾建立 `filters/my-filter.lua`
-2. 修改 `build.sh` 加上 `--lua-filter=filters/my-filter.lua`
+2. 修改 `scripts/build.sh` 加上 `--lua-filter=filters/my-filter.lua`
 
 範例：自動把所有「——」改為頓號的 filter：
 

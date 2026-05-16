@@ -293,7 +293,7 @@ function Test-Build {
         return
     }
 
-    $buildScript = Join-Path $ProjectRoot "build.ps1"
+    $buildScript = Join-Path $ProjectRoot "scripts\build.ps1"
     $minimalMd = Join-Path $ProjectRoot "examples\minimal\paper.md"
 
     if (-not (Test-Path $minimalMd)) {
@@ -377,4 +377,4 @@ Write-Host "下一步："
 Write-Host "  1. 複製論文骨架：Copy-Item -Recurse profiles\thesis-ncu\skeleton my-thesis"
 Write-Host "  2. 編輯 my-thesis\paper.md 的 YAML metadata"
 Write-Host "  3. 設置 Zotero：見 docs\03-zotero-setup.md"
-Write-Host "  4. 編譯論文：.\build.ps1 my-thesis\paper.md"
+Write-Host "  4. 編譯論文：.\scripts\build.ps1 my-thesis\paper.md"

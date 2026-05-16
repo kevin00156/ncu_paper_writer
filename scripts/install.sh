@@ -343,7 +343,7 @@ test_build() {
     fi
 
     if [[ "$DRY_RUN" == "true" ]]; then
-        echo -e "${YELLOW}[DRY-RUN]${NC} ./build.sh examples/minimal/paper.md"
+        echo -e "${YELLOW}[DRY-RUN]${NC} ./scripts/build.sh examples/minimal/paper.md"
         return 0
     fi
 
@@ -355,7 +355,7 @@ test_build() {
         return 0
     fi
 
-    if bash "$script_dir/build.sh" "$script_dir/examples/minimal/paper.md"; then
+    if bash "$script_dir/scripts/build.sh" "$script_dir/examples/minimal/paper.md"; then
         local pdf_path="$script_dir/examples/minimal/paper.pdf"
         if [[ -f "$pdf_path" ]]; then
             local size
@@ -428,4 +428,4 @@ echo "下一步："
 echo "  1. 複製論文骨架：cp -r profiles/thesis-ncu/skeleton/ my-thesis/"
 echo "  2. 編輯 my-thesis/paper.md 的 YAML metadata"
 echo "  3. 設置 Zotero：見 docs/03-zotero-setup.md"
-echo "  4. 編譯論文：./build.sh my-thesis/paper.md"
+echo "  4. 編譯論文：./scripts/build.sh my-thesis/paper.md"

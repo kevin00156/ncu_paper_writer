@@ -30,13 +30,13 @@
     詳細輸出。
 
 .EXAMPLE
-    .\build-slides.ps1 slides.md
+    .\scripts\build-slides.ps1 slides.md
 
 .EXAMPLE
-    .\build-slides.ps1 examples\slides-minimal\slides.md -Format html
+    .\scripts\build-slides.ps1 examples\slides-minimal\slides.md -Format html
 
 .EXAMPLE
-    .\build-slides.ps1 -Watch
+    .\scripts\build-slides.ps1 -Watch
 #>
 
 [CmdletBinding()]
@@ -87,9 +87,10 @@ function Invoke-Native {
 }
 
 $ScriptDir = Split-Path -Parent $PSCommandPath
+$RepoRoot = Split-Path -Parent $ScriptDir
 
 # --- Profile 解析 ---
-$ProfileDir = Join-Path $ScriptDir "profiles\$ProfileName"
+$ProfileDir = Join-Path $RepoRoot "profiles\$ProfileName"
 if (-not (Test-Path $ProfileDir)) {
     Write-ErrorMsg "找不到 profile：$ProfileName（預期目錄：$ProfileDir）"
     exit 1
