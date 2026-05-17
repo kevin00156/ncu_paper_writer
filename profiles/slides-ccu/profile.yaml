@@ -1,0 +1,11 @@
+name: slides-ccu
+type: slides
+style: ccu
+description: 國立中正大學（CCU）學位論文口試 / 學術簡報。Marp + Markdown 工作流。
+language: zh-TW
+theme: theme.css
+skeleton: skeleton/
+skill: skill/SKILL.md
+defaults:
+  marp: true
+  output: pdf
