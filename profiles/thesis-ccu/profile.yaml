@@ -1,0 +1,12 @@
+name: thesis-ccu
+type: thesis
+style: ccu
+description: 國立中正大學（National Chung Cheng University）學位論文格式。
+language: zh-TW
+template: template.latex
+skeleton: skeleton/
+skill: skill/SKILL.md
+defaults:
+  bib-style: ieee
+  pdf-engine: xelatex
+  csl: shared/cites/ieee.csl
