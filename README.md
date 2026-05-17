@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/logo.png" alt="PaperForge logo" width="200">
+</p>
+
 # PaperForge
 
 > Markdown 寫稿、Pandoc + XeLaTeX 鍛出格式精準的 PDF 論文／報告，附 Marp 簡報工作流
