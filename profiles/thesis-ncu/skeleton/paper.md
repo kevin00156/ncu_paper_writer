@@ -137,8 +137,9 @@ header-includes:
     \justifying
     \setlength{\emergencystretch}{3em}
 
-    % === 技術識別符允許在底線處換行 ===
-    \renewcommand{\_}{\textunderscore\allowbreak}
+    % === 技術識別符允許在底線處換行；math mode 內保留原行為，避免 \mathit{a\_b} 之類爆掉 ===
+    \let\paperforgeOrigUnderscore\_
+    \renewcommand{\_}{\ifmmode\paperforgeOrigUnderscore\else\textunderscore\allowbreak\fi}
 
     % === 實驗數據變數（在此集中管理，全文自動更新） ===
     \usepackage{fp}
