@@ -271,7 +271,7 @@ Dockerfile 在 [`docker/`](docker/)，詳細說明見 [`docker/README.md`](docke
 2. 開 PR — `build.yml` 的 `prepare-*-image` job 會自動 build 新版 image 並用於該 PR 的測試
 3. 合入 main 後 `docker-images.yml` 會更新 `:latest`（給外部 fork / release 用）
 
-**第一次 fork 本 repo 時**需手動把兩個 GHCR package visibility 改成 Public，否則拉不到 image。詳見 [`docker/README.md`](docker/README.md) 的「第一次設定」段落。
+**Fork 到 private repo 時**需手動把兩個 GHCR package visibility 改成 Public，否則拉不到 image（fork 到 public repo 通常會繼承 public，不用動）。詳見 [`docker/README.md`](docker/README.md) 的「第一次設定」段落。
 
 ### 改 docs
 
