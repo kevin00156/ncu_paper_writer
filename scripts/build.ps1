@@ -4,11 +4,15 @@
     PaperForge 跨平台編譯腳本 (Windows PowerShell)
 
 .DESCRIPTION
-    將 Markdown 論文檔案編譯成 PDF。
-    流程：Pandoc → LaTeX → biber → LaTeX × 2
+    將 Markdown 編譯成 PDF。會根據檔名自動分派：
+      - paper.md  → Pandoc + XeLaTeX 論文流程
+      - slides.md → 委派給 build-slides.ps1 (Marp)
+      - 其他檔名 → 互動式詢問模式
+    論文流程：Pandoc → LaTeX → biber → LaTeX × 2
 
 .PARAMETER InputFile
-    輸入的 Markdown 檔案路徑。若未指定且當前目錄有 paper.md 則自動使用。
+    輸入的 Markdown 檔案路徑。若未指定，會依當前目錄存在的
+    paper.md / slides.md 自動偵測；兩者皆存在時會互動式詢問。
 
 .PARAMETER Output
     輸出目錄。預設為原檔目錄。
@@ -106,6 +110,84 @@ function Invoke-Native {
 $ScriptDir = Split-Path -Parent $PSCommandPath
 $RepoRoot = Split-Path -Parent $ScriptDir
 
+# --- 自動偵測：根據檔名分派至 paper 或 slides 編譯流程 ---
+function Get-BuildMode {
+    param([string]$File)
+    if ($File) {
+        $name = [System.IO.Path]::GetFileName($File).ToLower()
+        if ($name -eq "paper.md")  { return "paper" }
+        if ($name -eq "slides.md") { return "slides" }
+        return "unknown"
+    }
+    $hasPaper  = Test-Path "paper.md"
+    $hasSlides = Test-Path "slides.md"
+    if ($hasPaper  -and -not $hasSlides) { return "paper" }
+    if ($hasSlides -and -not $hasPaper)  { return "slides" }
+    if ($hasPaper  -and $hasSlides)      { return "both" }
+    return "none"
+}
+
+function Read-BuildMode {
+    param([string]$Prompt = "請選擇編譯模式")
+    Write-Host ""
+    Write-Host "  [P] 論文 (Pandoc + XeLaTeX)" -ForegroundColor Cyan
+    Write-Host "  [S] 簡報 (Marp)" -ForegroundColor Cyan
+    while ($true) {
+        $ans = Read-Host "$Prompt (P/S)"
+        if ($null -ne $ans) {
+            switch ($ans.Trim().ToUpper()) {
+                "P" { return "paper" }
+                "S" { return "slides" }
+            }
+        }
+        Write-WarnMsg "請輸入 P 或 S"
+    }
+}
+
+$BuildMode = Get-BuildMode -File $InputFile
+
+if ($BuildMode -eq "none") {
+    Write-ErrorMsg "未指定輸入檔案，且當前目錄無 paper.md 或 slides.md"
+    Get-Help $PSCommandPath -Full | Out-String | Write-Host
+    exit 1
+}
+
+if ($BuildMode -eq "unknown") {
+    Write-Info "檔案 '$InputFile' 不是 paper.md 也不是 slides.md"
+    $BuildMode = Read-BuildMode
+} elseif ($BuildMode -eq "both") {
+    Write-Info "當前目錄同時有 paper.md 與 slides.md"
+    $BuildMode = Read-BuildMode "請選擇要編譯哪一個"
+    if (-not $InputFile) {
+        if ($BuildMode -eq "paper")  { $InputFile = "paper.md" }
+        if ($BuildMode -eq "slides") { $InputFile = "slides.md" }
+    }
+}
+
+# 自動補上預設檔名（若使用者沒給檔但 cwd 有對應檔）
+if (-not $InputFile) {
+    if ($BuildMode -eq "paper")  { $InputFile = "paper.md" }
+    if ($BuildMode -eq "slides") { $InputFile = "slides.md" }
+}
+
+# 簡報模式 → 委派給 build-slides.ps1
+if ($BuildMode -eq "slides") {
+    Write-Info "偵測為簡報模式 → 委派給 build-slides.ps1"
+    $slidesScript = Join-Path $ScriptDir "build-slides.ps1"
+    if (-not (Test-Path $slidesScript)) {
+        Write-ErrorMsg "找不到 build-slides.ps1：$slidesScript"
+        exit 1
+    }
+    $passArgs = @()
+    if ($InputFile) { $passArgs += $InputFile }
+    if ($PSBoundParameters.ContainsKey('Output')) { $passArgs += @("-Output", $Output) }
+    if ($Watch) { $passArgs += "-Watch" }
+    & $slidesScript @passArgs
+    exit $LASTEXITCODE
+}
+
+# --- 以下為 paper 模式 ---
+
 # --- 模板與 CSL 路徑（由 profile 推導，可被 -Template 覆寫） ---
 $ProfileDir = Join-Path $RepoRoot "profiles\$ProfileName"
 if (-not (Test-Path $ProfileDir)) {
@@ -116,17 +198,6 @@ if (-not $Template) {
     $Template = Join-Path $ProfileDir "template.latex"
 }
 $CslPath = Join-Path $RepoRoot "shared\cites\ieee.csl"
-
-# --- 預設輸入 ---
-if (-not $InputFile) {
-    if (Test-Path "paper.md") {
-        $InputFile = "paper.md"
-    } else {
-        Write-ErrorMsg "未指定輸入檔案，且當前目錄無 paper.md"
-        Get-Help $PSCommandPath -Full | Out-String | Write-Host
-        exit 1
-    }
-}
 
 if (-not (Test-Path $InputFile)) {
     Write-ErrorMsg "找不到輸入檔案：$InputFile"
