@@ -59,9 +59,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && fc-cache -f \
     && rm -rf /var/lib/apt/lists/*
 
-# 預裝 marp-cli 與 Chrome for Testing（讓 puppeteer 抓的 chrome 落在 PUPPETEER_CACHE_DIR）
+# 預裝 marp-cli 與 Chrome for Testing（讓 puppeteer 抓的 chrome 落在 PUPPETEER_CACHE_DIR），
+# 再做一個 /usr/local/bin/chrome wrapper：
+#   - marp-cli 透過 CHROME_PATH 抓得到固定路徑（chrome 版本資料夾名會變，不能直接 ENV 寫死）
+#   - container 內預設以 root 跑，wrapper 自動補 --no-sandbox（chrome 拒絕 root 直跑）
 RUN npm install -g @marp-team/marp-cli@latest \
-    && npx -y puppeteer browsers install chrome
+    && npx -y puppeteer browsers install chrome \
+    && CHROME_BIN="$(find /opt/puppeteer/chrome -type f -name chrome -executable | head -n1)" \
+    && test -x "$CHROME_BIN" \
+    && printf '#!/bin/sh\nexec %s --no-sandbox --disable-dev-shm-usage --disable-gpu "$@"\n' "$CHROME_BIN" > /usr/local/bin/chrome \
+    && chmod +x /usr/local/bin/chrome \
+    && /usr/local/bin/chrome --version
+
+ENV CHROME_PATH=/usr/local/bin/chrome
 
 WORKDIR /workspace
 
