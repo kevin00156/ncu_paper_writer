@@ -36,6 +36,30 @@ function Test-Command {
     return ($null -ne (Get-Command $Name -ErrorAction SilentlyContinue))
 }
 
+function Test-IsAdmin {
+    $id = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object Security.Principal.WindowsPrincipal($id)
+    return $principal.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+}
+
+function Invoke-WingetInstall {
+    param(
+        [Parameter(Mandatory)][string]$PkgId,
+        [string]$Scope
+    )
+    $wingetArgs = @("install", "--id", $PkgId, "--accept-source-agreements", "--accept-package-agreements", "--source", "winget")
+    if ($Scope) {
+        $wingetArgs += @("--scope", $Scope)
+    }
+    $scopeLabel = if ($Scope) { $Scope } else { "default" }
+    Write-Info "執行：winget $($wingetArgs -join ' ')"
+    # 用 Out-Host 強制 winget stdout 走主控台，避免被吸進 function pipeline 污染 return value
+    # （PowerShell function return 會收集所有 pipeline 物件 → 若不導流則 [progress..., $false]
+    #   傳回給呼叫端，`if (-not $result)` 對 array 永遠為 false，跳過 exit 1 而繼續執行）
+    winget @wingetArgs 2>&1 | Out-Host
+    return @{ ExitCode = $LASTEXITCODE; ScopeLabel = $scopeLabel }
+}
+
 function Install-NodeViaWinget {
     if (-not (Test-Command "winget")) {
         Write-Fail "winget 不可用，無法自動安裝 Node.js"
@@ -43,42 +67,60 @@ function Install-NodeViaWinget {
         return $false
     }
 
-    # 先試 LTS 版本（OpenJS.NodeJS 在部分環境會回 NO_APPLICABLE_INSTALLER，LTS 較穩）
-    # fallback 順序：LTS → 主版本
-    $candidates = @("OpenJS.NodeJS.LTS", "OpenJS.NodeJS")
+    $isAdmin = Test-IsAdmin
+    Write-Info "Admin 模式：$isAdmin"
+
+    # NO_APPLICABLE_INSTALLER (0x8A15002B / -1978335189) 常見原因：
+    #   1. 非 admin 但 manifest 只有 machine-scope installer → 試 --scope user
+    #   2. OpenJS.NodeJS（current）manifest 比 LTS 嚴格 → fallback 到 LTS
+    # 候選順序：(LTS, user) → (LTS, default) → (current, user) → (current, default)
+    # admin 模式下不需要先試 user scope，直接用 default 走得通的機率較高。
+    $candidates = if ($isAdmin) {
+        @(
+            @{ Id = "OpenJS.NodeJS.LTS"; Scope = $null },
+            @{ Id = "OpenJS.NodeJS";     Scope = $null }
+        )
+    } else {
+        @(
+            @{ Id = "OpenJS.NodeJS.LTS"; Scope = "user" },
+            @{ Id = "OpenJS.NodeJS.LTS"; Scope = $null },
+            @{ Id = "OpenJS.NodeJS";     Scope = "user" },
+            @{ Id = "OpenJS.NodeJS";     Scope = $null }
+        )
+    }
+
     $success = $false
-    foreach ($pkgId in $candidates) {
-        Write-Info "執行：winget install --id $pkgId --accept-source-agreements --accept-package-agreements"
-        # 用 Out-Host 強制 winget stdout 走主控台，避免被吸進 function pipeline 污染 return value
-        # （PowerShell function return 會收集所有 pipeline 物件 → 若不導流則 [progress..., $false]
-        #   傳回給呼叫端，`if (-not $result)` 對 array 永遠為 false，跳過 exit 1 而繼續執行）
-        winget install --id $pkgId --accept-source-agreements --accept-package-agreements 2>&1 | Out-Host
-        $wingetExit = $LASTEXITCODE
-        if ($wingetExit -eq 0) {
-            Write-Ok "$pkgId 安裝指令完成 (exit=0)"
+    foreach ($c in $candidates) {
+        $result = Invoke-WingetInstall -PkgId $c.Id -Scope $c.Scope
+        if ($result.ExitCode -eq 0) {
+            Write-Ok "$($c.Id) [scope=$($result.ScopeLabel)] 安裝指令完成 (exit=0)"
             $success = $true
             break
         }
-        Write-WarnMsg "$pkgId 安裝失敗 (exit=$wingetExit)"
+        Write-WarnMsg "$($c.Id) [scope=$($result.ScopeLabel)] 失敗 (exit=$($result.ExitCode))"
     }
 
     if (-not $success) {
-        Write-Fail "winget 安裝 Node.js 失敗（已試過 LTS 與主版本）"
+        Write-Fail "winget 安裝 Node.js 失敗（已試過所有候選 id × scope 組合）"
         Write-Info "請手動安裝："
-        Write-Info "  方案 1：從 https://nodejs.org 下載 LTS .msi 後安裝"
-        Write-Info "  方案 2：以系統管理員身分開啟 PowerShell 後再執行本腳本"
-        Write-Info "  方案 3：用其他套件管理器（如 fnm / nvm-windows）"
+        Write-Info "  方案 1：從 https://nodejs.org 下載 LTS .msi 後安裝（最穩）"
+        if (-not $isAdmin) {
+            Write-Info "  方案 2：以系統管理員身分開啟 PowerShell 後再執行本腳本"
+        }
+        Write-Info "  方案 3：用其他套件管理器（fnm / nvm-windows / scoop install nodejs-lts）"
         return $false
     }
 
     # 刷新本 process 的 PATH，讓新裝的 node/npm 立即可見（避免重開 shell）
+    # user scope 安裝會把 node 加進 User PATH；machine scope 進 Machine PATH。
+    # 兩個都吃，順序：Machine → User，與 Windows 預設一致。
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
 
     if (Test-Command "npm") {
         Write-Ok "Node.js 安裝成功並已加入 PATH"
         return $true
     }
-    Write-WarnMsg "Node.js 已裝但 npm 仍不在 PATH，請重開 PowerShell 後再執行本腳本"
+    Write-WarnMsg "Node.js 已裝但 npm 仍不在當前 session PATH，請重開 PowerShell 後再執行本腳本"
     return $false
 }
 
