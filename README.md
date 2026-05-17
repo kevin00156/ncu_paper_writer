@@ -23,6 +23,16 @@ PaperForge 是一套以 **Markdown + Pandoc + XeLaTeX** 為核心的「文件鍛
 
 ---
 
+## 影片教學（麻瓜友善）
+
+完全不熟命令列、Git、LaTeX？這套影片從零講起，跟著做就能編出第一份 PDF：
+
+▶️ **[YouTube 播放清單：PaperForge 麻瓜入門系列](https://www.youtube.com/playlist?list=PLR0wzekWGCT6TZnI4mxCV1HcQOE0iJjy9)**
+
+文字版教學請見下方「[5 分鐘快速開始](#5-分鐘快速開始)」與 [docs/](docs/) 目錄。
+
+---
+
 ## 為什麼選這套？
 
 | 痛點 | PaperForge 解法 |
