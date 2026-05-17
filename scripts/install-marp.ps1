@@ -31,6 +31,16 @@ function Write-Fail     { param([string]$m) Write-Host "[ERROR] " -ForegroundCol
 
 $ErrorActionPreference = "Continue"
 
+# 把 console output 切到 UTF-8，避免 winget / npm 等 native 工具的 UTF-8 stdout
+# 被 PS5.1 預設用 Big5 (cp950, zh-TW) / GBK (zh-CN) / Shift-JIS (ja-JP) 解碼後變亂碼。
+# 註：這是 process-level 設定（System.Console），腳本退出後仍會留在當前 PowerShell session，
+# 對其他 native command 多半是改善（PS7 預設就是 UTF-8），所以不刻意 restore。
+try {
+    [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
+} catch {
+    Write-Host "[WARN]  無法設定 console UTF-8 encoding：$_" -ForegroundColor Yellow
+}
+
 function Test-Command {
     param([string]$Name)
     return ($null -ne (Get-Command $Name -ErrorAction SilentlyContinue))
