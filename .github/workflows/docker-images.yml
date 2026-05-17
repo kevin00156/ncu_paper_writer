@@ -1,0 +1,75 @@
+name: Build CI Docker Images
+
+# 建置並推送 PaperForge build pipeline 用的 base image 到 GHCR。
+# Image 用途：讓 build.yml 跳過每次 CI 都要重跑的 TeX Live / npm / chromium 安裝。
+#
+# 觸發時機：
+#   - push 到 main 且改到 docker/** 或本 workflow → 自動 build + push :latest
+#   - 任何分支的 push 且改到 docker/** → build + push 一個 branch-slug 與 sha tag（方便 PR 預覽）
+#   - 手動 workflow_dispatch → 強制重建
+#
+# Tag 規則（見 metadata-action）：
+#   main 分支       → :latest, :sha-<7chars>
+#   其他分支        → :<branch-slug>, :sha-<7chars>
+#   workflow_dispatch → :manual-<sha-7chars>
+on:
+  push:
+    branches: ['**']
+    paths:
+      - 'docker/**'
+      - '.github/workflows/docker-images.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-images:
+    name: Build & push ${{ matrix.image }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: paperforge-paper
+            dockerfile: docker/paper.Dockerfile
+          - image: paperforge-slides
+            dockerfile: docker/slides.Dockerfile
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=sha,format=short,prefix=sha-
+
+      - name: Build & push
+        uses: docker/build-push-action@v6
+        with:
+          context: docker
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
