@@ -43,11 +43,31 @@ function Install-NodeViaWinget {
         return $false
     }
 
-    Write-Info "執行：winget install --id OpenJS.NodeJS --accept-source-agreements --accept-package-agreements"
-    winget install --id OpenJS.NodeJS --accept-source-agreements --accept-package-agreements
-    $wingetExit = $LASTEXITCODE
-    if ($wingetExit -ne 0) {
-        Write-Fail "winget 安裝失敗 (exit=$wingetExit)"
+    # 先試 LTS 版本（OpenJS.NodeJS 在部分環境會回 NO_APPLICABLE_INSTALLER，LTS 較穩）
+    # fallback 順序：LTS → 主版本
+    $candidates = @("OpenJS.NodeJS.LTS", "OpenJS.NodeJS")
+    $success = $false
+    foreach ($pkgId in $candidates) {
+        Write-Info "執行：winget install --id $pkgId --accept-source-agreements --accept-package-agreements"
+        # 用 Out-Host 強制 winget stdout 走主控台，避免被吸進 function pipeline 污染 return value
+        # （PowerShell function return 會收集所有 pipeline 物件 → 若不導流則 [progress..., $false]
+        #   傳回給呼叫端，`if (-not $result)` 對 array 永遠為 false，跳過 exit 1 而繼續執行）
+        winget install --id $pkgId --accept-source-agreements --accept-package-agreements 2>&1 | Out-Host
+        $wingetExit = $LASTEXITCODE
+        if ($wingetExit -eq 0) {
+            Write-Ok "$pkgId 安裝指令完成 (exit=0)"
+            $success = $true
+            break
+        }
+        Write-WarnMsg "$pkgId 安裝失敗 (exit=$wingetExit)"
+    }
+
+    if (-not $success) {
+        Write-Fail "winget 安裝 Node.js 失敗（已試過 LTS 與主版本）"
+        Write-Info "請手動安裝："
+        Write-Info "  方案 1：從 https://nodejs.org 下載 LTS .msi 後安裝"
+        Write-Info "  方案 2：以系統管理員身分開啟 PowerShell 後再執行本腳本"
+        Write-Info "  方案 3：用其他套件管理器（如 fnm / nvm-windows）"
         return $false
     }
 
