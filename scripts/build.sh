@@ -6,6 +6,12 @@
 # 用法：
 #   ./scripts/build.sh [<input.md>] [選項]
 #
+# 自動偵測：
+#   檔名為 paper.md  → Pandoc + XeLaTeX 論文流程
+#   檔名為 slides.md → 委派給 build-slides.sh (Marp)
+#   檔名為其他       → 互動式詢問編譯模式
+#   未給檔且當前目錄有 paper.md / slides.md → 取對應檔
+#
 # 選項：
 #   --output <dir>     輸出目錄（預設：原檔目錄）
 #   --watch            監看模式
@@ -78,6 +84,92 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# --- 自動偵測：根據檔名分派至 paper 或 slides 編譯流程 ---
+detect_build_mode() {
+    local f="$1"
+    if [[ -n "$f" ]]; then
+        local name
+        name="$(basename "$f")"
+        case "$name" in
+            paper.md)  echo "paper"  ;;
+            slides.md) echo "slides" ;;
+            *)         echo "unknown" ;;
+        esac
+        return
+    fi
+    local has_paper=false has_slides=false
+    [[ -f "paper.md" ]]  && has_paper=true
+    [[ -f "slides.md" ]] && has_slides=true
+    if $has_paper  && ! $has_slides; then echo "paper";  return; fi
+    if $has_slides && ! $has_paper;  then echo "slides"; return; fi
+    if $has_paper  &&   $has_slides; then echo "both";   return; fi
+    echo "none"
+}
+
+# 將選擇結果寫到全域變數 BUILD_MODE（避免子 shell 捕獲互動 read）
+prompt_build_mode() {
+    local prompt="${1:-請選擇編譯模式}"
+    echo "" >&2
+    echo "  [P] 論文 (Pandoc + XeLaTeX)" >&2
+    echo "  [S] 簡報 (Marp)" >&2
+    while true; do
+        local ans
+        read -r -p "${prompt} (P/S): " ans
+        case "$ans" in
+            P|p) BUILD_MODE="paper";  return ;;
+            S|s) BUILD_MODE="slides"; return ;;
+            *)   echo "請輸入 P 或 S" >&2 ;;
+        esac
+    done
+}
+
+BUILD_MODE="$(detect_build_mode "$INPUT")"
+
+if [[ "$BUILD_MODE" == "none" ]]; then
+    log_error "未指定輸入檔案，且當前目錄無 paper.md 或 slides.md"
+    usage 1
+fi
+
+if [[ "$BUILD_MODE" == "unknown" ]]; then
+    log_info "檔案 '$INPUT' 不是 paper.md 也不是 slides.md"
+    prompt_build_mode
+elif [[ "$BUILD_MODE" == "both" ]]; then
+    log_info "當前目錄同時有 paper.md 與 slides.md"
+    prompt_build_mode "請選擇要編譯哪一個"
+    if [[ -z "$INPUT" ]]; then
+        case "$BUILD_MODE" in
+            paper)  INPUT="paper.md" ;;
+            slides) INPUT="slides.md" ;;
+        esac
+    fi
+fi
+
+# 自動補上預設檔名（paper / slides 模式且使用者未給檔）
+if [[ -z "$INPUT" ]]; then
+    case "$BUILD_MODE" in
+        paper)  INPUT="paper.md" ;;
+        slides) INPUT="slides.md" ;;
+    esac
+fi
+
+# 簡報模式 → 委派給 build-slides.sh
+if [[ "$BUILD_MODE" == "slides" ]]; then
+    log_info "偵測為簡報模式 → 委派給 build-slides.sh"
+    SLIDES_SCRIPT="${SCRIPT_DIR}/build-slides.sh"
+    if [[ ! -f "$SLIDES_SCRIPT" ]]; then
+        log_error "找不到 build-slides.sh：$SLIDES_SCRIPT"
+        exit 1
+    fi
+    pass_args=()
+    [[ -n "$INPUT" ]]          && pass_args+=("$INPUT")
+    [[ -n "$OUTPUT_DIR" ]]     && pass_args+=("--output" "$OUTPUT_DIR")
+    [[ "$WATCH" == "true" ]]   && pass_args+=("--watch")
+    [[ "$VERBOSE" == "true" ]] && pass_args+=("--verbose")
+    exec bash "$SLIDES_SCRIPT" "${pass_args[@]}"
+fi
+
+# --- 以下為 paper 模式 ---
+
 # Profile → template/CSL 路徑解析（--template 可覆寫）
 PROFILE_DIR="${REPO_ROOT}/profiles/${PROFILE}"
 if [[ ! -d "$PROFILE_DIR" ]]; then
@@ -88,16 +180,6 @@ if [[ -z "$TEMPLATE" ]]; then
     TEMPLATE="${PROFILE_DIR}/template.latex"
 fi
 CSL_PATH="${REPO_ROOT}/shared/cites/ieee.csl"
-
-# --- 預設輸入檔案 ---
-if [[ -z "$INPUT" ]]; then
-    if [[ -f "paper.md" ]]; then
-        INPUT="paper.md"
-    else
-        log_error "未指定輸入檔案，且當前目錄無 paper.md"
-        usage 1
-    fi
-fi
 
 if [[ ! -f "$INPUT" ]]; then
     log_error "找不到輸入檔案：$INPUT"
