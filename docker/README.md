@@ -31,10 +31,10 @@
 
 ## 第一次設定（new repo / fork）
 
-1. **第一次 push 到 main**：`docker-images.yml` 會自動跑並把 image 推到 GHCR。
+1. **第一次 push 到任何分支且改到 `docker/**`**：`docker-images.yml` 會自動跑並把 image 推到 GHCR。
 2. **把 GHCR package 設為 Public**（預設是 Private）：
-   - 到 https://github.com/users/&lt;owner&gt;/packages/container/paperforge-paper/settings
-   - Change visibility → Public
+   - 到 `https://github.com/<owner>/<repo>/pkgs/container/paperforge-paper/settings`（或先到 repo 的 "Packages" 頁面點進去）
+   - Danger Zone → Change package visibility → Public
    - 對 `paperforge-slides` 重複
    - 否則 fork / PR 拉不到 image。
 3. **確認 build.yml 跑得起來**：在 Actions 頁手動觸發 `Build Examples` workflow。
