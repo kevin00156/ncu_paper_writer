@@ -1,10 +1,17 @@
 name: Build Examples
 
-# 編譯範例 PDF 較重（裝 TeX Live 約 10–15 分鐘），不適合每次 push 都跑。
+# 編譯範例 PDF 較重，但靠 docker/ 下預建的 build image 就不必每次都重跑 apt install
+# 或下載 Chrome for Testing。
+#
+# Flow：
+#   1. prepare-*-image：build docker image，推到 GHCR，tag = ci-<run_id>。
+#      使用 GHA cache，第二次 PR 跑時 docker build 大多 cache hit。
+#   2. build / build-slides：以該 image 當 container 跑，跳過 apt install / npm install。
+#
 # 觸發時機：
 #   - PR 開啟/更新時
-#   - 手動觸發（Actions 頁面 "Run workflow"）
-#   - push 到 main 但有改到編譯相關檔案（模板、build 腳本、範例、CI 本身）
+#   - 手動觸發
+#   - push 到 main 但有改到編譯相關檔案
 on:
   pull_request:
     branches: [main, master]
@@ -20,56 +27,111 @@ on:
       - 'scripts/build-slides.sh'
       - 'scripts/build-slides.ps1'
       - 'Makefile'
+      - 'docker/**'
       - '.github/workflows/build.yml'
 
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_TAG: ci-${{ github.run_id }}
+
 jobs:
-  build:
-    name: Build PDFs on Ubuntu
+  prepare-paper-image:
+    name: Prepare paper build image
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      image: ${{ steps.ref.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase owner
+        id: owner
+        run: echo "owner=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Build & push paper image
+        uses: docker/build-push-action@v6
+        with:
+          context: docker
+          file: docker/paper.Dockerfile
+          push: true
+          tags: ghcr.io/${{ steps.owner.outputs.owner }}/paperforge-paper:${{ env.IMAGE_TAG }}
+          cache-from: type=gha,scope=paperforge-paper
+          cache-to: type=gha,mode=max,scope=paperforge-paper
+
+      - name: Expose image ref
+        id: ref
+        run: echo "image=ghcr.io/${{ steps.owner.outputs.owner }}/paperforge-paper:${{ env.IMAGE_TAG }}" >> "$GITHUB_OUTPUT"
+
+  prepare-slides-image:
+    name: Prepare slides build image
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      image: ${{ steps.ref.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase owner
+        id: owner
+        run: echo "owner=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Build & push slides image
+        uses: docker/build-push-action@v6
+        with:
+          context: docker
+          file: docker/slides.Dockerfile
+          push: true
+          tags: ghcr.io/${{ steps.owner.outputs.owner }}/paperforge-slides:${{ env.IMAGE_TAG }}
+          cache-from: type=gha,scope=paperforge-slides
+          cache-to: type=gha,mode=max,scope=paperforge-slides
+
+      - name: Expose image ref
+        id: ref
+        run: echo "image=ghcr.io/${{ steps.owner.outputs.owner }}/paperforge-slides:${{ env.IMAGE_TAG }}" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build PDFs on Ubuntu
+    needs: prepare-paper-image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: ${{ needs.prepare-paper-image.outputs.image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Cache APT packages
-        uses: actions/cache@v4
-        with:
-          path: /var/cache/apt/archives
-          key: apt-${{ runner.os }}-${{ hashFiles('.github/workflows/build.yml') }}
-
-      - name: Install Pandoc, TeX Live, biber, CJK fonts
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            pandoc \
-            texlive-xetex \
-            texlive-latex-recommended \
-            texlive-latex-extra \
-            texlive-lang-cjk \
-            texlive-lang-chinese \
-            texlive-fonts-recommended \
-            texlive-fonts-extra \
-            texlive-bibtex-extra \
-            texlive-publishers \
-            biber \
-            lmodern \
-            fonts-noto-cjk \
-            fonts-noto-cjk-extra
-          # apt 套件對應的關鍵 .sty：
-          #   lmodern                      → lmodern.sty (Pandoc 模板 \usepackage{lmodern})
-          #   texlive-latex-recommended    → url.sty、fancyhdr.sty、caption.sty 等核心
-          #   texlive-latex-extra          → titlesec.sty、subfigure.sty、ragged2e.sty、fp.sty
-          #   texlive-lang-cjk             → xeCJK.sty (CJK 主套件)
-          #   texlive-lang-chinese         → ctex.sty、ctexhook.sty (xeCJK 的中文相關依賴)
-          #   texlive-fonts-*              → 字型檔
-          #   texlive-bibtex-extra         → biblatex-ieee.bbx
-
       - name: Verify environment
         run: |
           pandoc --version | head -n1
           xelatex --version | head -n1
-          biber --version
+          biber --version | head -n1
           fc-list :lang=zh-tw | head -n5
 
       - name: Make build script executable
@@ -124,36 +186,18 @@ jobs:
 
   build-slides:
     name: Build Marp Slides on Ubuntu
+    needs: prepare-slides-image
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
+    container:
+      image: ${{ needs.prepare-slides-image.outputs.image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install CJK fonts
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            fonts-noto-cjk \
-            fonts-noto-cjk-extra
-
-      # Ubuntu 24.04 runner 的 apt chromium-browser 是 snap transitional shim，
-      # 容易在 api.snapcraft.io 撞到 HTTP 408 而整段失敗。改讓 marp-cli 透過
-      # puppeteer 內建邏輯自行下載 Chrome for Testing 並快取。
-      - name: Cache Puppeteer Chromium
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/puppeteer
-          key: puppeteer-${{ runner.os }}-v1
-
-      - name: Install marp-cli
-        run: npm install -g @marp-team/marp-cli
 
       - name: Verify environment
         run: |

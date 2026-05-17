@@ -242,19 +242,36 @@ PDF 必須 > 10 KB 且 5 頁以上才算通過。
 
 PDF 必須 > 100 KB 才算通過（Marp 內嵌字體較肥）。首次執行會下載 Chromium。
 
-### CI 結構（兩支 workflow）
+### CI 結構（三支 workflow）
 
 - **`.github/workflows/lint.yml`**：每次 push/PR 都跑（30 秒）。檢查 Skill frontmatter、章節錨點、禁用破折號、Marp 簡報頁數上限。
-- **`.github/workflows/build.yml`**：較重（10–15 分鐘），含兩個 job：
-  - `build`：論文 PDF（Ubuntu + TeX Live）
-  - `build-slides`：簡報 PDF/HTML（Ubuntu + Node.js + Chromium）
+- **`.github/workflows/docker-images.yml`**：在 `docker/**` 變動時 build & push CI base image 到 GHCR，打 `:latest` / `:<branch-slug>` / `:sha-<7chars>` tag。給外部 / release 用。
+- **`.github/workflows/build.yml`**：含 prepare-image + build + build-slides 共四個 job：
+  - `prepare-paper-image` / `prepare-slides-image`：用 GHA cache build `docker/{paper,slides}.Dockerfile` 並推 `:ci-<run_id>` tag。Dockerfile 沒變時幾乎瞬間。
+  - `build`：以 paper image 為 container 跑，編譯論文 PDF。
+  - `build-slides`：以 slides image 為 container 跑，編譯 Marp 簡報 PDF/HTML。
 
   只在以下時機跑：
   - PR 開啟/更新
   - 手動 `workflow_dispatch`
-  - push 到 main 且改到 `profiles/`、`shared/`、`examples/`、`build*.{sh,ps1}`、`Makefile` 或 `build.yml` 自身
+  - push 到 main 且改到 `profiles/`、`shared/`、`examples/`、`build*.{sh,ps1}`、`Makefile`、`docker/` 或 `build.yml` 自身
 
 改 docs 等不影響編譯的檔案 push 上去只會跑 lint。
+
+### CI build images（重要）
+
+build.yml 不再每次跑 `apt install`，改用 GHCR 上的預建 image：
+- `ghcr.io/<owner>/paperforge-paper:ci-<run_id>` — Pandoc + TeX Live + biber + Noto CJK
+- `ghcr.io/<owner>/paperforge-slides:ci-<run_id>` — Node 20 + marp-cli + Chrome for Testing + Noto CJK
+
+Dockerfile 在 [`docker/`](docker/)，詳細說明見 [`docker/README.md`](docker/README.md)。
+
+**修改 image 內容**（加 LaTeX 套件、字體、Node lib 等）的流程：
+1. 改 `docker/paper.Dockerfile` 或 `docker/slides.Dockerfile`
+2. 開 PR — `build.yml` 的 `prepare-*-image` job 會自動 build 新版 image 並用於該 PR 的測試
+3. 合入 main 後 `docker-images.yml` 會更新 `:latest`（給外部 fork / release 用）
+
+**第一次 fork 本 repo 時**需手動把兩個 GHCR package visibility 改成 Public，否則拉不到 image。詳見 [`docker/README.md`](docker/README.md) 的「第一次設定」段落。
 
 ### 改 docs
 
