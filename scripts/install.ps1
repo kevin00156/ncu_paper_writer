@@ -389,7 +389,9 @@ if ($failCount -gt 0) {
 Write-Host "🎉 安裝完成！" -ForegroundColor Green
 Write-Host ""
 Write-Host "下一步："
-Write-Host "  1. 複製論文骨架：Copy-Item -Recurse profiles\thesis-ncu\skeleton my-thesis"
+Write-Host "  1. 複製論文骨架（選一個 profile）："
+Write-Host "       Copy-Item -Recurse profiles\thesis-ncu\skeleton my-thesis    # 國立中央大學"
+Write-Host "       Copy-Item -Recurse profiles\thesis-ccu\skeleton my-thesis    # 國立中正大學"
 Write-Host "  2. 編輯 my-thesis\paper.md 的 YAML metadata"
 Write-Host "  3. 設置 Zotero：見 docs\03-zotero-setup.md"
-Write-Host "  4. 編譯論文：.\scripts\build.ps1 my-thesis\paper.md"
+Write-Host "  4. 編譯論文：.\scripts\build.ps1 my-thesis\paper.md --profile thesis-ncu  # 或 thesis-ccu"
